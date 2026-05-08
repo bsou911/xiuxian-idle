@@ -871,10 +871,15 @@ function refreshPanel(){
     let slots=[{k:'weapon',n:'⚔️ 法宝'},{k:'armor',n:'🛡️ 护甲'},{k:'accessory',n:'💍 灵饰'}];
     slots.forEach(sl=>{
       let it=S.equip[sl.k];
-      if(it)h+=`<div class="equip-card"><div class="equip-icon">${sl.n[0]+sl.n[1]}</div><div class="equip-info"><div class="equip-name ${'rarity-'+it.r}">${RARITY_NAMES[it.r]} · ${it.n}</div><div class="equip-stat">`;
-      if(it.a)h+=`攻击+${it.a} `;if(it.d)h+=`防御+${it.d} `;if(it.q)h+=`灵力+${Math.floor(it.q*100)}%`;
-      h+=`</div></div></div>`;
-      else h+=`<div class="equip-card"><div class="equip-icon">${sl.n[0]+sl.n[1]}</div><div class="equip-info equip-empty">${sl.n} — 击败敌人有几率掉落</div></div>`;
+      if(it){
+        h+=`<div class="equip-card"><div class="equip-icon">${sl.n[0]+sl.n[1]}</div><div class="equip-info"><div class="equip-name ${'rarity-'+it.r}">${RARITY_NAMES[it.r]} · ${it.n}</div><div class="equip-stat">`;
+        if(it.a)h+=`攻击+${it.a} `;
+        if(it.d)h+=`防御+${it.d} `;
+        if(it.q)h+=`灵力+${Math.floor(it.q*100)}%`;
+        h+=`</div></div></div>`;
+      }else{
+        h+=`<div class="equip-card"><div class="equip-icon">${sl.n[0]+sl.n[1]}</div><div class="equip-info equip-empty">${sl.n} — 击败敌人有几率掉落</div></div>`;
+      }
     });
   }else if(currentPanel==='bt'){
     let n=getNext();
