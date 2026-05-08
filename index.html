@@ -487,28 +487,28 @@ const RARITY_NAMES = {common:'凡品',uncommon:'灵品',rare:'仙品',epic:'圣�
 // ===== 随机事件池 =====
 const EVENTS = [
   {icon:'🧓',t:'路遇高人',d:'一位白发老者在路边打坐，似乎愿意指点你几句...',ch:[
-    {t:'虚心请教 (消耗50灵力)',e:'qi>49',act(){state.qi-=50;state.exp+=Math.floor(getRealm().exp*0.3);return'老者传你一段口诀，修为大涨！'}},
+    {t:'虚心请教 (消耗50灵力)',e:'S.qi>49',act(){S.qi-=50;S.exp+=Math.floor(getRealm().exp*0.3);return'老者传你一段口诀，修为大涨！'}},
     {t:'恭敬行礼后离开',e:'1',act(){return'老者微微点头，你感到心境有所提升。(无变化)'}},
   ]},
   {icon:'🏚️',t:'破旧丹炉',d:'你在山洞中发现一尊破旧丹炉，里面有残存的药渣...',ch:[
-    {t:'收集药渣',e:'1',act(){let g=randInt(30,120);state.qi+=g;return'药渣中残留灵力，获得 '+fmt(g)+' 灵力！'}},
-    {t:'尝试修复丹炉 (消耗200灵力)',e:'qi>199',act(){state.qi-=200;if(Math.random()<0.4){state.qi+=800;return'丹炉炸了！但你吸收了爆炸灵力，获得800灵力'}else{state.qi+=300;return'修复失败但没亏，回收300灵力'}}},
+    {t:'收集药渣',e:'1',act(){let g=randInt(30,120);S.qi+=g;return'药渣中残留灵力，获得 '+fmt(g)+' 灵力！'}},
+    {t:'尝试修复丹炉 (消耗200灵力)',e:'S.qi>199',act(){S.qi-=200;if(Math.random()<0.4){S.qi+=800;return'丹炉炸了！但你吸收了爆炸灵力，获得800灵力'}else{S.qi+=300;return'修复失败但没亏，回收300灵力'}}},
   ]},
   {icon:'⚔️',t:'邪修挑衅',d:'一个邪修拦住去路，要和你比试。',ch:[
-    {t:'正面迎战 (成功率60%)',e:'1',act(){if(Math.random()<0.6){let g=randInt(80,200);state.qi+=g;state.exp+=Math.floor(getRealm().exp*0.15);return'击败邪修！获得 '+fmt(g)+' 灵力'}else{state.qi=Math.max(0,state.qi-80);return'战败，损失80灵力...'}},
-    {t:'绕路离开',e:'1',act(){return'安全绕行，但耽误了修炼。(-20灵力)';state.qi=Math.max(0,state.qi-20)}},
+    {t:'正面迎战 (成功率60%)',e:'1',act(){if(Math.random()<0.6){let g=randInt(80,200);S.qi+=g;S.exp+=Math.floor(getRealm().exp*0.15);return'击败邪修！获得 '+fmt(g)+' 灵力'}else{S.qi=Math.max(0,S.qi-80);return'战败，损失80灵力...'}}},
+    {t:'绕路离开',e:'1',act(){let loss=Math.min(S.qi,20);S.qi-=loss;return'安全绕行，但耽误了修炼。(-'+loss+'灵力)'}},
   ]},
   {icon:'💊',t:'天降丹雨',d:'天空忽然下起灵力化成的丹雨！',ch:[
-    {t:'冲进去收集 (风险)',e:'1',act(){if(Math.random()<0.7){let g=randInt(100,400);state.qi+=g;return'收集到大量丹药！+'+fmt(g)+' 灵力'}else{state.qi=Math.max(0,state.qi-150);return'被丹雷劈中，损失150灵力...'}},
-    {t:'在边缘接一些',e:'1',act(){let g=randInt(50,150);state.qi+=g;return'安全收集，+'+fmt(g)+' 灵力'}},
+    {t:'冲进去收集 (风险)',e:'1',act(){if(Math.random()<0.7){let g=randInt(100,400);S.qi+=g;return'收集到大量丹药！+'+fmt(g)+' 灵力'}else{S.qi=Math.max(0,S.qi-150);return'被丹雷劈中，损失150灵力...'}}},
+    {t:'在边缘接一些',e:'1',act(){let g=randInt(50,150);S.qi+=g;return'安全收集，+'+fmt(g)+' 灵力'}},
   ]},
   {icon:'📜',t:'古卷残篇',d:'地上有一卷残破的修炼功法...',ch:[
-    {t:'潜心解读 (消耗100灵力)',e:'qi>99',act(){state.qi-=100;if(Math.random()<0.5){state.exp+=Math.floor(getRealm().exp*0.4);return'悟出残卷真意！修为大增'}else{return'残卷太深奥，未能参透...'}},
-    {t:'收起来以后再看',e:'1',act(){state.qi+=50;return'残卷上附着的灵力被你吸收，+50灵力'}},
+    {t:'潜心解读 (消耗100灵力)',e:'S.qi>99',act(){S.qi-=100;if(Math.random()<0.5){S.exp+=Math.floor(getRealm().exp*0.4);return'悟出残卷真意！修为大增'}else{return'残卷太深奥，未能参透...'}}},
+    {t:'收起来以后再看',e:'1',act(){S.qi+=50;return'残卷上附着的灵力被你吸收，+50灵力'}},
   ]},
   {icon:'🌿',t:'灵药园',d:'发现一处隐秘的灵药园，药香扑鼻...',ch:[
-    {t:'采集成熟灵药',e:'1',act(){let g=randInt(60,180);state.qi+=g;return'采集成功！+'+fmt(g)+' 灵力'}},
-    {t:'等待灵药完全成熟 (有风险)',e:'1',act(){if(Math.random()<0.6){let g=randInt(150,350);state.qi+=g;return'等到成熟！+'+fmt(g)+' 灵力'}else{return'被妖兽抢先一步，一无所获...'}},
+    {t:'采集成熟灵药',e:'1',act(){let g=randInt(60,180);S.qi+=g;return'采集成功！+'+fmt(g)+' 灵力'}},
+    {t:'等待灵药完全成熟 (有风险)',e:'1',act(){if(Math.random()<0.6){let g=randInt(150,350);S.qi+=g;return'等到成熟！+'+fmt(g)+' 灵力'}else{return'被妖兽抢先一步，一无所获...'}}},
   ]},
 ];
 
@@ -531,11 +531,21 @@ let particleTimer = null;
 
 function loadState(){
   try{
-    let r=JSON.parse(localStorage.getItem('xx2_save'));
-    return r?{...DEF(),...r}:DEF();
-  }catch(e){return DEF()}
+    let raw=localStorage.getItem('xx2_save');
+    if(!raw)return DEF();
+    let r=JSON.parse(raw);
+    // 合并默认值，防止旧存档缺少新字段
+    let merged={...DEF(),...r};
+    // 验证关键字段存在
+    if(typeof merged.realm!=='number'||typeof merged.qi!=='number')throw new Error('存档数据损坏');
+    return merged;
+  }catch(e){
+    console.warn('存档读取失败，使用新存档:',e.message);
+    localStorage.removeItem('xx2_save');
+    return DEF();
+  }
 }
-function save(){S.lastSave=Date.now();localStorage.setItem('xx2_save',JSON.stringify(S))}
+function save(){S.lastSave=Date.now();try{localStorage.setItem('xx2_save',JSON.stringify(S))}catch(e){console.warn('存档失败:',e)}}
 function getRealm(){return REALMS[S.realm]}
 function getNext(){return REALMS[S.realm+1]||null}
 function fmt(n){return n>=1e8?(n/1e8).toFixed(1)+'亿':n>=1e4?(n/1e4).toFixed(1)+'万':Math.floor(n).toLocaleString()}
@@ -720,7 +730,7 @@ function triggerBreakthrough(){
     if(success){
       S.realm++;S.exp=0;S.btCount++;
       S.btHistory.unshift({r:getRealm().n,ok:true,ts:Date.now()});
-      document.getElementById('bt-result').innerHTML='<span style="color:#4db88d">✨ 突破成功！</span><br><span style="font-size:0.7em;color:var(--gold)">晋升 '+getRealm().n+'</span>';
+      document.getElementById('bt-result').innerHTML='<span style="color:#4db88d">✨ 突破成功！</span><br><span style="font-size:0.7em;color:#c9a84c">晋升 '+getRealm().n+'</span>';
       document.getElementById('bt-result').style.color='#4db88d';
       // 突破成功粒子雨
       for(let i=0;i<30;i++)setTimeout(()=>{
@@ -734,7 +744,7 @@ function triggerBreakthrough(){
     }else{
       S.exp=Math.floor(S.exp*0.75);
       S.btHistory.unshift({r:getNext().n,ok:false,ts:Date.now()});
-      document.getElementById('bt-result').innerHTML='<span style="color:#e04343">💔 突破失败</span><br><span style="font-size:0.7em;color:var(--text-dim)">修为倒退25%</span>';
+      document.getElementById('bt-result').innerHTML='<span style="color:#e04343">💔 突破失败</span><br><span style="font-size:0.7em;color:#5c5c70">修为倒退25%</span>';
       document.getElementById('bt-result').style.color='#e04343';
     }
     if(S.btHistory.length>20)S.btHistory=S.btHistory.slice(0,20);
@@ -769,28 +779,35 @@ function triggerEvent(){
 }
 function resolveEvent(idx){
   let ev=currentEvent;
+  if(!ev||!ev.ch[idx])return;
   document.getElementById('event-popup').classList.remove('show');
-  let result=ev.ch[idx].act();
-  showToast(result);
+  try{
+    let result=ev.ch[idx].act();
+    showToast(result);
+  }catch(e){
+    console.error('事件处理错误:',e);
+    showToast('事件处理出错，但不影响游戏');
+  }
   currentEvent=null;
   save();refreshAll();
 }
 
 // ===== 游戏主循环 =====
+let _autoAttackTimer = 0;
+let _enemySpawnThreshold = 4 + Math.random() * 4;
 function tick(){
   // 自动修炼
   let qiGain=getRealm().qi*qiMult();
   S.qi+=qiGain;S.totalQi+=qiGain;S.exp+=qiGain;
   // 技能CD
-  if(S.skillCD>0){S.skillCD-=0.1;if(S.skillCD<=0){S.skillCD=0;document.getElementById('skill-btn').classList.remove('cooldown')}}
+  if(S.skillCD>0){S.skillCD-=0.1;if(S.skillCD<=0){S.skillCD=0;let sb=document.getElementById('skill-btn');if(sb)sb.classList.remove('cooldown')}}
   // 敌人逻辑
   if(S.enemy){
-    S.enemyTimer+=0.1;
-    // 每1.5秒自动攻击一次
-    if(S.enemyTimer%1.5<0.1){attackEnemy(Math.floor(getAtk()*0.5));if(!S.enemy)return}
+    _autoAttackTimer+=0.1;
+    if(_autoAttackTimer>=1.5){_autoAttackTimer=0;attackEnemy(Math.floor(getAtk()*0.5))}
   }else{
     S.enemyTimer+=0.1;
-    if(S.enemyTimer>4+Math.random()*4){S.enemyTimer=0;spawnEnemy()}
+    if(S.enemyTimer>_enemySpawnThreshold){S.enemyTimer=0;_enemySpawnThreshold=4+Math.random()*4;spawnEnemy()}
   }
   // 随机事件
   S.eventTimer+=0.1;
@@ -863,11 +880,11 @@ function refreshPanel(){
     let n=getNext();
     if(n){
       let ch=Math.floor(btChance()*100);
-      h+=`<div style="text-align:center;padding:12px"><div style="font-family:STKaiti,KaiTi,serif;font-size:1.1em;color:var(--gold);margin-bottom:4px">${getRealm().n} → ${n.n}</div>
-      <div style="color:var(--text-dim);font-size:0.8em;margin-bottom:4px">成功率: ${ch}% | 消耗: ${fmt(getRealm().cost)} 灵力</div>
-      <div style="color:var(--text-dim);font-size:0.75em;margin-bottom:12px">${canBT()?'<span style="color:#4db88d">可以突破！</span>':'修炼未满或灵力不足'}</div>
-      <button style="padding:10px 32px;border-radius:20px;border:2px solid var(--gold);background:rgba(201,168,76,0.15);color:var(--gold-bright);font-family:STKaiti,KaiTi,serif;font-size:1em;cursor:pointer" ${canBT()?'':'disabled'} onclick="openBreakthrough()">冲击境界</button></div>`;
-    }else{h+='<div style="text-align:center;padding:16px;color:var(--gold)">已达仙道巅峰</div>'}
+      h+=`<div style="text-align:center;padding:12px"><div style="font-family:STKaiti,KaiTi,serif;font-size:1.1em;color:#c9a84c;margin-bottom:4px">${getRealm().n} → ${n.n}</div>
+      <div style="color:#5c5c70;font-size:0.8em;margin-bottom:4px">成功率: ${ch}% | 消耗: ${fmt(getRealm().cost)} 灵力</div>
+      <div style="color:#5c5c70;font-size:0.75em;margin-bottom:12px">${canBT()?'<span style="color:#4db88d">可以突破！</span>':'修炼未满或灵力不足'}</div>
+      <button style="padding:10px 32px;border-radius:20px;border:2px solid #c9a84c;background:rgba(201,168,76,0.15);color:#f5d98e;font-family:STKaiti,KaiTi,serif;font-size:1em;cursor:pointer" ${canBT()?'':'disabled'} onclick="openBreakthrough()">冲击境界</button></div>`;
+    }else{h+='<div style="text-align:center;padding:16px;color:#c9a84c">已达仙道巅峰</div>'}
     if(S.btHistory.length>0){
       h+='<div style="margin-top:12px;max-height:150px;overflow-y:auto">';
       S.btHistory.slice(0,8).forEach(bh=>{
@@ -942,19 +959,24 @@ function calcOffline(){
 
 // ===== 初始化 =====
 function init(){
-  calcOffline();
-  save();
-  gameLoop=setInterval(tick,100);
-  setInterval(save,15000);
-  window.addEventListener('beforeunload',save);
-  refreshAll();
-  // 初始粒子
-  for(let i=0;i<10;i++)setTimeout(()=>spawnQiParticles(3),i*200);
-  console.log('🧘 仙途 v0.2 已就绪 |',getRealm().n,'|',fmt(S.qi),'灵');
-  console.log(' 点击角色=战斗/修炼 | ⚡ 技能=爆发伤害 | 杀敌=掉落装备');
-  console.log(' 突破=赌博快感 | 随机事件=惊喜/惊吓');
+  try{
+    calcOffline();
+    save();
+    gameLoop=setInterval(tick,100);
+    setInterval(save,15000);
+    window.addEventListener('beforeunload',save);
+    refreshAll();
+    for(let i=0;i<10;i++)setTimeout(()=>spawnQiParticles(3),i*200);
+    console.log('🧘 仙途 v0.2 已就绪 |',getRealm().n,'|',fmt(S.qi),'灵');
+    console.log(' 点击角色=战斗/修炼 | ⚡ 技能=爆发伤害 | 杀敌=掉落装备');
+    console.log(' 突破=赌博快感 | 随机事件=惊喜/惊吓');
+  }catch(e){
+    console.error('游戏初始化失败:',e);
+    document.body.innerHTML='<div style="color:#c9a84c;text-align:center;padding:40px;font-family:sans-serif"><h2>初始化失败</h2><p>'+e.message+'</p><button onclick="localStorage.removeItem(\'xx2_save\');location.reload()" style="margin-top:20px;padding:10px 30px">清除存档重试</button></div>';
+  }
 }
 init();
 </script>
 </body>
 </html>
+logout
