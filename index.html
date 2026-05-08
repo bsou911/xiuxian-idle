@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>仙途 · 放置修仙</title>
+<style>
+/* ===== CSS 变量与全局 ===== */
+:root {
+  --bg-deep: #0a0a0f;
+  --bg-panel: #12121a;
+  --bg-card: #1a1a28;
+  --gold: #d4a843;
+  --gold-light: #f0d68a;
+  --gold-dark: #8b6914;
+  --jade: #5aab8f;
+  --jade-light: #7fd4b3;
+  --danger: #c0392b;
+  --danger-light: #e74c3c;
+  --text: #c8c8d0;
+  --text-dim: #6a6a7a;
+  --text-bright: #f0e6d3;
+  --border: #2a2a3a;
+  --exp-bar: #3a6bc5;
+  --font-cn: 'STKaiti', 'KaiTi', '楷体', 'Noto Serif SC', 'SimSun', serif;
+  --font-ui: 'PingFang SC', 'Microsoft YaHei', '微软雅黑', sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg-deep);
+  color: var(--text);
+  font-family: var(--font-ui);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* 背景装饰 */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(212,168,67,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 80%, rgba(90,171,143,0.04) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ===== 顶部状态栏 ===== */
+#top-bar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: linear-gradient(180deg, rgba(10,10,15,0.98) 0%, rgba(10,10,15,0.9) 100%);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 16px 8px;
+}
+
+.top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#realm-display {
+  font-family: var(--font-cn);
+  font-size: 1.3em;
+  color: var(--gold);
+  text-shadow: 0 0 20px rgba(212,168,67,0.3);
+}
+
+#qi-display {
+  font-size: 0.85em;
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.qi-icon { color: var(--jade-light); font-size: 1.1em; }
+
+/* EXP 条 */
+#exp-bar-wrap {
+  margin-top: 6px;
+  background: var(--bg-card);
+  border-radius: 4px;
+  height: 8px;
+  overflow: hidden;
+  position: relative;
+}
+
+#exp-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3a6bc5, #5b8def);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+#exp-text {
+  font-size: 0.7em;
+  color: var(--text-dim);
+  text-align: right;
+  margin-top: 2px;
+}
+
+/* ===== 主内容区 ===== */
+#main-area {
+  position: relative;
+  z-index: 1;
+  padding: 12px 16px 90px;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* 修炼核心区 */
+#cultivate-zone {
+  text-align: center;
+  padding: 24px 0;
+}
+
+#cultivate-btn {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 3px solid var(--gold-dark);
+  background: radial-gradient(circle at 40% 35%, var(--gold-light), var(--gold-dark));
+  color: var(--bg-deep);
+  font-family: var(--font-cn);
+  font-size: 1.4em;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 0 30px rgba(212,168,67,0.2), 0 4px 20px rgba(0,0,0,0.4);
+  -webkit-tap-highlight-color: transparent;
+}
+
+#cultivate-btn:active {
+  transform: scale(0.93);
+  box-shadow: 0 0 50px rgba(212,168,67,0.4), 0 2px 10px rgba(0,0,0,0.4);
+}
+
+#cultivate-btn:disabled {
+  filter: grayscale(40%);
+  opacity: 0.7;
+}
+
+.auto-info {
+  margin-top: 10px;
+  font-size: 0.8em;
+  color: var(--text-dim);
+}
+
+.auto-info span { color: var(--jade-light); }
+
+/* 浮动数字 */
+.float-num {
+  position: fixed;
+  pointer-events: none;
+  font-family: var(--font-cn);
+  font-weight: bold;
+  color: var(--gold-light);
+  font-size: 1.3em;
+  animation: floatUp 1s ease-out forwards;
+  z-index: 200;
+}
+
+@keyframes floatUp {
+  0% { opacity: 1; transform: translateY(0) scale(1); }
+  50% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-60px) scale(1.4); }
+}
+
+/* 离线收益弹窗 */
+#offline-modal {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.8);
+  z-index: 300;
+  justify-content: center;
+  align-items: center;
+}
+
+#offline-modal.show { display: flex; }
+
+#offline-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--gold-dark);
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+  max-width: 320px;
+  width: 90%;
+  box-shadow: 0 0 40px rgba(212,168,67,0.15);
+}
+
+#offline-card h3 {
+  font-family: var(--font-cn);
+  color: var(--gold);
+  font-size: 1.2em;
+  margin-bottom: 8px;
+}
+
+#offline-card .time { color: var(--text-dim); font-size: 0.85em; margin-bottom: 12px; }
+#offline-card .gain { color: var(--jade-light); font-size: 1.1em; margin-bottom: 16px; }
+#offline-card button {
+  background: var(--gold-dark);
+  color: var(--text-bright);
+  border: none;
+  padding: 10px 32px;
+  border-radius: 20px;
+  font-size: 1em;
+  cursor: pointer;
+  font-family: var(--font-cn);
+}
+
+/* ===== 标签页导航 ===== */
+#tab-nav {
+  display: flex;
+  background: var(--bg-card);
+  border-radius: 8px;
+  margin: 16px 0;
+  overflow: hidden;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 10px 0;
+  text-align: center;
+  font-family: var(--font-cn);
+  font-size: 0.95em;
+  color: var(--text-dim);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tab-btn.active {
+  color: var(--gold);
+  background: rgba(212,168,67,0.1);
+}
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ===== 功法面板 ===== */
+.skill-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.skill-info h4 { color: var(--text-bright); font-size: 0.95em; font-family: var(--font-cn); }
+.skill-info p { color: var(--text-dim); font-size: 0.75em; margin-top: 2px; }
+
+.skill-btn {
+  padding: 6px 16px;
+  border-radius: 16px;
+  border: 1px solid var(--jade);
+  background: transparent;
+  color: var(--jade);
+  font-size: 0.8em;
+  cursor: pointer;
+  font-family: var(--font-ui);
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.skill-btn:active { background: rgba(90,171,143,0.2); }
+.skill-btn.owned { border-color: var(--text-dim); color: var(--text-dim); }
+.skill-btn.equipped { border-color: var(--gold); color: var(--gold); background: rgba(212,168,67,0.15); }
+
+/* ===== 突破面板 ===== */
+#breakthrough-zone {
+  text-align: center;
+  padding: 16px 0;
+}
+
+#bt-realm-current {
+  font-family: var(--font-cn);
+  font-size: 1.1em;
+  color: var(--text-bright);
+  margin-bottom: 4px;
+}
+
+#bt-realm-next {
+  font-family: var(--font-cn);
+  color: var(--gold);
+  font-size: 1.4em;
+  margin-bottom: 12px;
+  text-shadow: 0 0 15px rgba(212,168,67,0.3);
+}
+
+#bt-success-rate {
+  font-size: 0.85em;
+  color: var(--jade-light);
+  margin-bottom: 8px;
+}
+
+#bt-requirement {
+  font-size: 0.8em;
+  color: var(--text-dim);
+  margin-bottom: 16px;
+}
+
+#bt-btn {
+  padding: 12px 40px;
+  border-radius: 24px;
+  border: 2px solid var(--gold);
+  background: linear-gradient(135deg, rgba(212,168,67,0.2), rgba(139,105,20,0.3));
+  color: var(--gold-light);
+  font-family: var(--font-cn);
+  font-size: 1.1em;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+#bt-btn:disabled {
+  border-color: var(--text-dim);
+  color: var(--text-dim);
+  background: rgba(106,106,122,0.1);
+  cursor: not-allowed;
+}
+
+#bt-btn:not(:disabled):active {
+  background: rgba(212,168,67,0.4);
+  transform: scale(0.96);
+}
+
+.bt-history {
+  margin-top: 16px;
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.bt-history-item {
+  font-size: 0.75em;
+  padding: 4px 0;
+}
+
+.bt-history-item.success { color: var(--jade); }
+.bt-history-item.fail { color: var(--danger-light); }
+
+/* ===== 装备面板 ===== */
+.equip-slot {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.equip-name { color: var(--text-bright); font-size: 0.9em; font-family: var(--font-cn); }
+.equip-stat { color: var(--jade); font-size: 0.75em; }
+.equip-empty { color: var(--text-dim); font-size: 0.8em; }
+
+/* 统计 */
+#stats-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.stat-item {
+  background: var(--bg-card);
+  border-radius: 6px;
+  padding: 8px 12px;
+  text-align: center;
+}
+
+.stat-label { font-size: 0.7em; color: var(--text-dim); }
+.stat-value { font-size: 1em; color: var(--text-bright); font-weight: bold; }
+
+/* 通知提示 */
+.toast {
+  position: fixed;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-panel);
+  border: 1px solid var(--gold);
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-family: var(--font-cn);
+  color: var(--gold-light);
+  z-index: 400;
+  animation: toastIn 0.3s ease, toastOut 0.3s ease 1.7s forwards;
+  pointer-events: none;
+  text-align: center;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+}
+
+@keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+@keyframes toastOut { from { opacity: 1; } to { opacity: 0; } }
+
+/* 底部信息 */
+#bottom-info {
+  text-align: center;
+  padding: 16px;
+  font-size: 0.7em;
+  color: var(--text-dim);
+}
+
+/* 响应式 */
+@media (max-width: 380px) {
+  #cultivate-btn { width: 100px; height: 100px; font-size: 1.2em; }
+  #realm-display { font-size: 1.1em; }
+}
+</style>
+</head>
+<body>
+
+<!-- 顶部状态栏 -->
+<div id="top-bar">
+  <div class="top-row">
+    <div id="realm-display">凡人</div>
+    <div id="qi-display"><span class="qi-icon">✦</span> <span id="qi-val">0</span></div>
+  </div>
+  <div id="exp-bar-wrap"><div id="exp-bar-fill" style="width:0%"></div></div>
+  <div id="exp-text">修炼进度 0 / 100</div>
+</div>
+
+<!-- 离线收益弹窗 -->
+<div id="offline-modal">
+  <div id="offline-card">
+    <h3>仙途归来</h3>
+    <div class="time" id="offline-time"></div>
+    <div class="gain" id="offline-gain"></div>
+    <button onclick="claimOffline()">收下修为</button>
+  </div>
+</div>
+
+<!-- 主内容区 -->
+<div id="main-area">
+
+  <!-- 修炼区 -->
+  <div id="cultivate-zone">
+    <button id="cultivate-btn" onclick="cultivate()">修 炼</button>
+    <div class="auto-info" id="auto-info">每秒自动修炼 <span id="auto-rate">0</span> 灵力</div>
+  </div>
+
+  <!-- 统计 -->
+  <div id="stats-row">
+    <div class="stat-item">
+      <div class="stat-label">突破次数</div>
+      <div class="stat-value" id="stat-breakthroughs">0</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-label">修炼总灵力</div>
+      <div class="stat-value" id="stat-total-qi">0</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-label">当前功法</div>
+      <div class="stat-value" id="stat-skills">0</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-label">灵力倍率</div>
+      <div class="stat-value" id="stat-multiplier">1.0x</div>
+    </div>
+  </div>
+
+  <!-- 标签页 -->
+  <div id="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('skills')">功法</button>
+    <button class="tab-btn" onclick="switchTab('breakthrough')">突破</button>
+    <button class="tab-btn" onclick="switchTab('equip')">装备</button>
+  </div>
+
+  <!-- 功法面板 -->
+  <div class="tab-panel active" id="panel-skills"></div>
+
+  <!-- 突破面板 -->
+  <div class="tab-panel" id="panel-breakthrough">
+    <div id="breakthrough-zone">
+      <div id="bt-realm-current"></div>
+      <div id="bt-realm-next"></div>
+      <div id="bt-success-rate"></div>
+      <div id="bt-requirement"></div>
+      <button id="bt-btn" onclick="attemptBreakthrough()">冲击境界</button>
+      <div class="bt-history" id="bt-history"></div>
+    </div>
+  </div>
+
+  <!-- 装备面板 -->
+  <div class="tab-panel" id="panel-equip"></div>
+
+</div>
+
+<div id="bottom-info">仙途 · 放置修仙 v0.1 | 数据自动保存</div>
+
+<script>
+// ============================================================
+// 修仙放置游戏 v0.1 — 核心游戏逻辑
+// 项目: xiuxian-idle
+// 日期: 2026-05-08
+// ============================================================
+
+// ===== 数据定义 =====
+const REALMS = [
+  { name: '凡人',        expNeeded: 100,   qiPerSec: 0.5,  btSuccessBase: 0,    btCost: 0 },
+  { name: '练气期·一层', expNeeded: 200,   qiPerSec: 1,    btSuccessBase: 0.70, btCost: 50 },
+  { name: '练气期·二层', expNeeded: 350,   qiPerSec: 1.5,  btSuccessBase: 0.65, btCost: 80 },
+  { name: '练气期·三层', expNeeded: 500,   qiPerSec: 2,    btSuccessBase: 0.60, btCost: 120 },
+  { name: '练气期·四层', expNeeded: 700,   qiPerSec: 2.5,  btSuccessBase: 0.55, btCost: 180 },
+  { name: '练气期·五层', expNeeded: 1000,  qiPerSec: 3.5,  btSuccessBase: 0.50, btCost: 250 },
+  { name: '练气期·六层', expNeeded: 1400,  qiPerSec: 4.5,  btSuccessBase: 0.45, btCost: 350 },
+  { name: '练气期·七层', expNeeded: 1900,  qiPerSec: 6,    btSuccessBase: 0.40, btCost: 500 },
+  { name: '练气期·八层', expNeeded: 2500,  qiPerSec: 8,    btSuccessBase: 0.35, btCost: 700 },
+  { name: '练气期·九层', expNeeded: 3200,  qiPerSec: 10,   btSuccessBase: 0.30, btCost: 1000 },
+  { name: '筑基期·初期', expNeeded: 5000,  qiPerSec: 15,   btSuccessBase: 0.25, btCost: 1500 },
+  { name: '筑基期·中期', expNeeded: 7500,  qiPerSec: 22,   btSuccessBase: 0.22, btCost: 2200 },
+  { name: '筑基期·后期', expNeeded: 11000, qiPerSec: 32,   btSuccessBase: 0.20, btCost: 3200 },
+  { name: '金丹期·初期', expNeeded: 16000, qiPerSec: 48,   btSuccessBase: 0.18, btCost: 5000 },
+  { name: '金丹期·中期', expNeeded: 24000, qiPerSec: 70,   btSuccessBase: 0.15, btCost: 7500 },
+  { name: '金丹期·后期', expNeeded: 36000, qiPerSec: 100,  btSuccessBase: 0.12, btCost: 11000 },
+  { name: '元婴期·初期', expNeeded: 55000, qiPerSec: 150,  btSuccessBase: 0.10, btCost: 18000 },
+  { name: '元婴期·中期', expNeeded: 85000, qiPerSec: 220,  btSuccessBase: 0.08, btCost: 28000 },
+  { name: '元婴期·后期', expNeeded: 130000,qiPerSec: 330,  btSuccessBase: 0.06, btCost: 45000 },
+  { name: '化神期',       expNeeded: 200000,qiPerSec: 500,  btSuccessBase: 0.04, btCost: 70000 },
+  { name: '合体期',       expNeeded: 350000,qiPerSec: 800,  btSuccessBase: 0.03, btCost: 120000 },
+  { name: '大乘期',       expNeeded: 600000,qiPerSec: 1300, btSuccessBase: 0.02, btCost: 200000 },
+  { name: '渡劫期',       expNeeded: 1000000,qiPerSec:2000,btSuccessBase: 0.01, btCost: 350000 },
+  { name: '真仙',          expNeeded: Infinity, qiPerSec: 5000, btSuccessBase: 0, btCost: 0 },
+];
+
+const SKILLS = [
+  { id: 'basic_breath',  name: '基础吐纳术', desc: '灵力获取 +20%',     cost: 50,   effect: { type: 'mult', value: 0.2 } },
+  { id: 'jade_sutra',    name: '玉清心经',   desc: '灵力获取 +35%',     cost: 200,  effect: { type: 'mult', value: 0.35 } },
+  { id: 'sun_moon',      name: '日月精华诀', desc: '灵力获取 +50%',     cost: 600,  effect: { type: 'mult', value: 0.50 } },
+  { id: 'dragon_art',    name: '青龙炼气法', desc: '灵力获取 +80%',     cost: 2000, effect: { type: 'mult', value: 0.80 } },
+  { id: 'taixu',         name: '太虚真气诀', desc: '灵力获取 +120%',    cost: 6000, effect: { type: 'mult', value: 1.20 } },
+  { id: 'primordial',    name: '鸿蒙紫气功', desc: '灵力获取 +200%',    cost: 20000,effect: { type: 'mult', value: 2.00 } },
+  { id: 'bt_boost_1',    name: '破境丹方·残',desc: '突破成功率 +5%',    cost: 300,  effect: { type: 'bt_boost', value: 0.05 } },
+  { id: 'bt_boost_2',    name: '破境丹方·全',desc: '突破成功率 +10%',   cost: 1500, effect: { type: 'bt_boost', value: 0.10 } },
+  { id: 'click_boost_1', name: '聚灵手诀',   desc: '点击灵力 +50%',     cost: 100,  effect: { type: 'click_mult', value: 0.5 } },
+  { id: 'click_boost_2', name: '天罡指法',   desc: '点击灵力 +100%',    cost: 800,  effect: { type: 'click_mult', value: 1.0 } },
+];
+
+const EQUIPMENT_SLOTS = [
+  { id: 'weapon', name: '法宝',   icon: '⚔️' },
+  { id: 'armor',  name: '护甲',   icon: '🛡️' },
+  { id: 'accessory', name: '灵饰', icon: '💍' },
+];
+
+// ===== 游戏状态 =====
+const DEFAULT_STATE = {
+  qi: 0,
+  totalQiEarned: 0,
+  realmIdx: 0,          // 当前境界索引
+  exp: 0,               // 当前境界内的修炼进度
+  ownedSkills: [],       // 已拥有功法ID列表
+  equippedSkill: null,   // 当前装备的功法（只能同时用一个加成类）
+  equipment: { weapon: null, armor: null, accessory: null },
+  breakthroughCount: 0,
+  breakthroughHistory: [], // { realm, success, timestamp }
+  lastSaveTime: Date.now(),
+};
+
+let state = loadState();
+let currentTab = 'skills';
+let autoInterval = null;
+
+// ===== 持久化 =====
+function loadState() {
+  try {
+    const raw = localStorage.getItem('xiuxian_idle_save');
+    if (raw) {
+      const saved = JSON.parse(raw);
+      // 合并默认值（向后兼容）
+      return { ...DEFAULT_STATE, ...saved };
+    }
+  } catch (e) { console.warn('加载存档失败:', e); }
+  return { ...DEFAULT_STATE };
+}
+
+function saveState() {
+  state.lastSaveTime = Date.now();
+  try {
+    localStorage.setItem('xiuxian_idle_save', JSON.stringify(state));
+  } catch (e) { console.warn('保存存档失败:', e); }
+}
+
+// 重置游戏（调试用）
+function resetGame() {
+  if (confirm('确定要重置所有修炼进度吗？此操作不可撤销！')) {
+    state = { ...DEFAULT_STATE };
+    saveState();
+    location.reload();
+  }
+}
+
+// ===== 离线进度计算 =====
+function calcOfflineProgress() {
+  const now = Date.now();
+  const elapsed = (now - state.lastSaveTime) / 1000; // 秒
+  if (elapsed < 10) return; // 不到10秒不算
+
+  // 最多累计8小时
+  const capped = Math.min(elapsed, 8 * 3600);
+  const autoQi = getAutoQiPerSec();
+  const gained = Math.floor(autoQi * capped * 0.5); // 离线50%效率
+
+  if (gained > 0) {
+    showOfflineModal(capped, gained);
+  }
+}
+
+function showOfflineModal(seconds, qi) {
+  const mins = Math.floor(seconds / 60);
+  const hrs = Math.floor(mins / 60);
+  const remainMin = mins % 60;
+  let timeStr = '';
+  if (hrs > 0) timeStr += hrs + '小时';
+  if (remainMin > 0 || hrs === 0) timeStr += remainMin + '分钟';
+
+  document.getElementById('offline-time').textContent = '你离开了 ' + timeStr;
+  document.getElementById('offline-gain').textContent = '自动修炼获得 ' + formatNumber(qi) + ' 灵力';
+  document.getElementById('offline-modal').classList.add('show');
+
+  // 暂存离线收益
+  window._offlineQi = qi;
+}
+
+function claimOffline() {
+  if (window._offlineQi) {
+    addQi(window._offlineQi);
+    window._offlineQi = 0;
+  }
+  document.getElementById('offline-modal').classList.remove('show');
+  saveState();
+  refreshAll();
+}
+
+// ===== 核心计算 =====
+function getRealm() { return REALMS[state.realmIdx]; }
+function getNextRealm() { return REALMS[state.realmIdx + 1] || null; }
+
+function getAutoQiPerSec() {
+  let base = getRealm().qiPerSec;
+  // 功法倍率加成
+  let mult = 1;
+  for (const skillId of state.ownedSkills) {
+    const skill = SKILLS.find(s => s.id === skillId);
+    if (skill && skill.effect.type === 'mult') {
+      mult += skill.effect.value;
+    }
+  }
+  return base * mult;
+}
+
+function getClickQi() {
+  let base = getRealm().qiPerSec * 2; // 点击 = 2秒自动收益
+  let mult = 1;
+  for (const skillId of state.ownedSkills) {
+    const skill = SKILLS.find(s => s.id === skillId);
+    if (skill && skill.effect.type === 'click_mult') {
+      mult += skill.effect.value;
+    }
+  }
+  return Math.floor(base * mult);
+}
+
+function getBreakthroughBonus() {
+  let bonus = 0;
+  for (const skillId of state.ownedSkills) {
+    const skill = SKILLS.find(s => s.id === skillId);
+    if (skill && skill.effect.type === 'bt_boost') {
+      bonus += skill.effect.value;
+    }
+  }
+  return bonus;
+}
+
+function calcExpProgress() {
+  const realm = getRealm();
+  if (realm.expNeeded === Infinity) return 100;
+  return Math.min(100, Math.floor((state.exp / realm.expNeeded) * 100));
+}
+
+// ===== 操作 =====
+function addQi(amount) {
+  state.qi += amount;
+  state.totalQiEarned += amount;
+}
+
+function cultivate() {
+  const gain = getClickQi();
+  addQi(gain);
+  addExp(gain);
+  spawnFloatNum(gain);
+  refreshAll();
+  saveState();
+}
+
+function addExp(amount) {
+  state.exp += amount;
+  const realm = getRealm();
+  // 自动消耗灵力转为经验（当经验满时）
+  while (realm.expNeeded !== Infinity && state.exp >= realm.expNeeded) {
+    // 经验满了，需要突破才能继续
+    state.exp = realm.expNeeded;
+    break;
+  }
+}
+
+// 自动修炼（每秒触发）
+function autoTick() {
+  const gain = Math.floor(getAutoQiPerSec());
+  if (gain > 0) {
+    addQi(gain);
+    addExp(gain);
+    refreshAll();
+    // 每5秒保存一次
+    if (Math.floor(Date.now() / 5000) !== Math.floor((Date.now() - 1000) / 5000)) {
+      saveState();
+    }
+  }
+}
+
+// ===== 突破 =====
+function canBreakthrough() {
+  const realm = getRealm();
+  const next = getNextRealm();
+  if (!next) return false;
+  if (state.qi < realm.btCost) return false;
+  if (state.exp < realm.expNeeded) return false;
+  return true;
+}
+
+function getBreakthroughChance() {
+  const base = getRealm().btSuccessBase;
+  const bonus = getBreakthroughBonus();
+  return Math.min(0.95, base + bonus);
+}
+
+function attemptBreakthrough() {
+  if (!canBreakthrough()) {
+    showToast('修炼未满或灵力不足，无法突破');
+    return;
+  }
+
+  const realm = getRealm();
+  const cost = realm.btCost;
+  const chance = getBreakthroughChance();
+  const roll = Math.random();
+  const success = roll < chance;
+
+  // 扣除灵力
+  state.qi = Math.max(0, state.qi - cost);
+
+  if (success) {
+    state.realmIdx++;
+    state.exp = 0;
+    state.breakthroughCount++;
+    state.breakthroughHistory.unshift({
+      realm: getRealm().name,
+      success: true,
+      timestamp: Date.now()
+    });
+    showToast('✨ 突破成功！晋升 ' + getRealm().name + ' ✨');
+    // 突破成功奖励：当前境界所需灵力的20%
+    const reward = Math.floor(getRealm().expNeeded * 0.2);
+    addQi(reward);
+  } else {
+    // 失败惩罚：失去当前境界20%的修炼进度
+    state.exp = Math.floor(state.exp * 0.8);
+    state.breakthroughHistory.unshift({
+      realm: getNextRealm().name,
+      success: false,
+      timestamp: Date.now()
+    });
+    showToast('💔 突破失败！灵力溃散，修为倒退...');
+  }
+
+  // 只保留最近20条历史
+  if (state.breakthroughHistory.length > 20) {
+    state.breakthroughHistory = state.breakthroughHistory.slice(0, 20);
+  }
+
+  saveState();
+  refreshAll();
+}
+
+// ===== 功法系统 =====
+function buySkill(skillId) {
+  if (state.ownedSkills.includes(skillId)) return;
+
+  const skill = SKILLS.find(s => s.id === skillId);
+  if (!skill) return;
+  if (state.qi < skill.cost) {
+    showToast('灵力不足，无法购买');
+    return;
+  }
+
+  state.qi -= skill.cost;
+  state.ownedSkills.push(skillId);
+  showToast('习得功法：' + skill.name);
+  saveState();
+  refreshAll();
+}
+
+// ===== 装备系统（占位，后续版本扩展） =====
+function getEquipmentDisplay() {
+  const slots = [];
+  for (const slot of EQUIPMENT_SLOTS) {
+    const item = state.equipment[slot.id];
+    slots.push({
+      slot: slot,
+      item: item
+    });
+  }
+  return slots;
+}
+
+// ===== UI 渲染 =====
+function refreshAll() {
+  refreshTopBar();
+  refreshSkills();
+  refreshBreakthrough();
+  refreshEquipment();
+  refreshStats();
+}
+
+function refreshTopBar() {
+  const realm = getRealm();
+  document.getElementById('realm-display').textContent = realm.name;
+  document.getElementById('qi-val').textContent = formatNumber(state.qi);
+  document.getElementById('auto-rate').textContent = formatNumber(getAutoQiPerSec());
+
+  const pct = calcExpProgress();
+  document.getElementById('exp-bar-fill').style.width = pct + '%';
+  if (realm.expNeeded === Infinity) {
+    document.getElementById('exp-text').textContent = '已达至高境界';
+  } else {
+    document.getElementById('exp-text').textContent =
+      '修炼进度 ' + formatNumber(state.exp) + ' / ' + formatNumber(realm.expNeeded);
+  }
+}
+
+function refreshSkills() {
+  const panel = document.getElementById('panel-skills');
+  let html = '';
+  for (const skill of SKILLS) {
+    const owned = state.ownedSkills.includes(skill.id);
+    let btnClass = '';
+    let btnText = '购买 (' + formatNumber(skill.cost) + ' 灵)';
+    if (owned) {
+      btnClass = 'owned';
+      btnText = '已习得 ✓';
+    }
+    html += `
+      <div class="skill-card">
+        <div class="skill-info">
+          <h4>${skill.name}</h4>
+          <p>${skill.desc}</p>
+        </div>
+        <button class="skill-btn ${btnClass}" onclick="buySkill('${skill.id}')" ${owned ? 'disabled' : ''}>${btnText}</button>
+      </div>`;
+  }
+  panel.innerHTML = html;
+}
+
+function refreshBreakthrough() {
+  const realm = getRealm();
+  const next = getNextRealm();
+
+  document.getElementById('bt-realm-current').textContent = '当前：' + realm.name;
+  if (next) {
+    document.getElementById('bt-realm-next').textContent = '→ ' + next.name;
+    const chance = Math.floor(getBreakthroughChance() * 100);
+    document.getElementById('bt-success-rate').textContent =
+      '突破成功率：' + chance + '%' + (getBreakthroughBonus() > 0 ? ' (含丹药加成)' : '');
+    document.getElementById('bt-requirement').textContent =
+      '需要：修炼圆满 + ' + formatNumber(realm.btCost) + ' 灵力';
+  } else {
+    document.getElementById('bt-realm-next').textContent = '已达仙道巅峰';
+    document.getElementById('bt-success-rate').textContent = '';
+    document.getElementById('bt-requirement').textContent = '';
+  }
+
+  const btn = document.getElementById('bt-btn');
+  if (!next) {
+    btn.disabled = true;
+    btn.textContent = '已登仙极';
+  } else if (!canBreakthrough()) {
+    btn.disabled = true;
+    if (state.exp < realm.expNeeded) {
+      btn.textContent = '修炼未圆满';
+    } else {
+      btn.textContent = '灵力不足';
+    }
+  } else {
+    btn.disabled = false;
+    btn.textContent = '冲击境界';
+  }
+
+  // 突破历史
+  let histHtml = '';
+  for (const h of state.breakthroughHistory.slice(0, 5)) {
+    const cls = h.success ? 'success' : 'fail';
+    const icon = h.success ? '✅' : '❌';
+    const time = new Date(h.timestamp).toLocaleString('zh-CN', { month: 'numeric', day: 'numeric', hour: '2-digit', minute:'2-digit' });
+    histHtml += `<div class="bt-history-item ${cls}">${icon} ${h.realm} — ${time}</div>`;
+  }
+  document.getElementById('bt-history').innerHTML = histHtml || '<div style="color:var(--text-dim);font-size:0.75em;">尚无突破记录</div>';
+}
+
+function refreshEquipment() {
+  const panel = document.getElementById('panel-equip');
+  const slots = getEquipmentDisplay();
+  let html = '';
+  for (const s of slots) {
+    if (s.item) {
+      html += `<div class="equip-slot">
+        <span class="equip-name">${s.slot.icon} ${s.slot.name}</span>
+        <span class="equip-stat">${s.item}</span>
+      </div>`;
+    } else {
+      html += `<div class="equip-slot">
+        <span class="equip-name">${s.slot.icon} ${s.slot.name}</span>
+        <span class="equip-empty">空（后续版本开放）</span>
+      </div>`;
+    }
+  }
+  panel.innerHTML = html;
+}
+
+function refreshStats() {
+  document.getElementById('stat-breakthroughs').textContent = state.breakthroughCount;
+  document.getElementById('stat-total-qi').textContent = formatNumber(state.totalQiEarned);
+  document.getElementById('stat-skills').textContent = state.ownedSkills.length;
+
+  let mult = 1;
+  for (const skillId of state.ownedSkills) {
+    const skill = SKILLS.find(s => s.id === skillId);
+    if (skill && skill.effect.type === 'mult') mult += skill.effect.value;
+  }
+  document.getElementById('stat-multiplier').textContent = mult.toFixed(1) + 'x';
+}
+
+// ===== 辅助函数 =====
+function formatNumber(n) {
+  if (n >= 1e12) return (n / 1e12).toFixed(1) + '兆';
+  if (n >= 1e8) return (n / 1e8).toFixed(1) + '亿';
+  if (n >= 1e4) return (n / 1e4).toFixed(1) + '万';
+  return Math.floor(n).toLocaleString('zh-CN');
+}
+
+function spawnFloatNum(value) {
+  const el = document.createElement('div');
+  el.className = 'float-num';
+  el.textContent = '+' + formatNumber(value) + ' 灵';
+  const btn = document.getElementById('cultivate-btn');
+  const rect = btn.getBoundingClientRect();
+  el.style.left = (rect.left + rect.width / 2 - 30) + 'px';
+  el.style.top = (rect.top - 10) + 'px';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1000);
+}
+
+function showToast(msg) {
+  const existing = document.querySelector('.toast');
+  if (existing) existing.remove();
+
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2000);
+}
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelector(`.tab-btn:nth-child(${tab === 'skills' ? 1 : tab === 'breakthrough' ? 2 : 3})`).classList.add('active');
+  document.getElementById('panel-' + tab).classList.add('active');
+}
+
+// ===== 初始化 =====
+function init() {
+  // 离线收益
+  calcOfflineProgress();
+
+  // 自动修炼
+  autoInterval = setInterval(autoTick, 1000);
+
+  // 首次渲染
+  refreshAll();
+
+  // 定期保存
+  setInterval(saveState, 10000);
+
+  // 页面关闭时保存
+  window.addEventListener('beforeunload', saveState);
+
+  console.log('🧘 仙途 · 放置修仙 v0.1 已启动');
+  console.log('  境界:', getRealm().name);
+  console.log('  灵力:', formatNumber(state.qi));
+  console.log('  每秒自动:', formatNumber(getAutoQiPerSec()));
+  console.log('  输入 resetGame() 重置进度');
+}
+
+// 启动
+init();
+</script>
+</body>
+</html>
