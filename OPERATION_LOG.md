@@ -102,3 +102,22 @@ git commit -m "feat: 修仙放置游戏 v0.1 原型
 - ✅ 提交 077c736: "feat: 修仙放置游戏 v0.1 原型"
 - ✅ 4 files changed, 1385 insertions
 - ✅ index.html (30,935 bytes, 1024 lines)
+
+---
+
+### 2026-05-08 11:40 — 创建技能: html-game-prototyping
+
+**Operator**: DeepSeek-v4-Pro (via Hermes Agent)
+
+**Operation**:
+将本次开发中发现的 7 类常见 bug 和设计方法论沉淀为可复用技能。
+
+**Skill内容**:
+1. 7种AI生成游戏代码的常见致命bug及修复方法
+2. 健壮的游戏代码模板(状态管理/持久化/错误边界)
+3. "能用"vs"好玩"的设计哲学(情绪钩子理论)
+4. 调试检查清单
+5. 非开发者部署路径
+
+**Reason**:
+本次开发经历了 v0.1(太无聊)→v0.2(有可玩性但有6个bug)→修复的全过程，其中 bug 模式具有通用性，未来任何 AI 辅助的 HTML 游戏开发都会遇到。
