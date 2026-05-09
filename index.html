@@ -431,7 +431,7 @@ body{
 <div id="game">
   <!-- HUD -->
   <div id="hud">
-    <div><span id="stage-badge">凡人</span> <span id="realm-badge"></span></div>
+    <div><span id="stage-badge">凡人</span> <span id="realm-badge"></span> <span id="dao-name" style="color:#c9a84c;font-family:STKaiti,KaiTi,serif;font-size:0.85em;opacity:0.7"></span></div>
     <div style="display:flex;align-items:center;gap:6px">
       <span id="linggen-indicator"></span>
       <span id="prestige-indicator" style="display:none;font-size:0.7em;color:#f5d98e"></span>
@@ -494,44 +494,48 @@ body{
 
 // ===== 大境界分组 =====
 const STAGES = [
-  {id:0, name:'凡人境',   color:'#888',    aura:'rgba(150,150,150,0.1)',  ptype:'qi'},
-  {id:1, name:'练气境',   color:'#c9a84c', aura:'rgba(201,168,76,0.15)', ptype:'qi',    unlock:'战斗系统开启'},
-  {id:2, name:'筑基境',   color:'#4db88d', aura:'rgba(77,184,141,0.2)',  ptype:'jade',  unlock:'⚒ 装备强化系统'},
-  {id:3, name:'金丹境',   color:'#e0a800', aura:'rgba(224,168,0,0.25)',  ptype:'qi',    unlock:'🌟 灵根觉醒'},
-  {id:4, name:'元婴境',   color:'#b04de0', aura:'rgba(176,77,224,0.3)',  ptype:'purple',unlock:'🔮 神通树'},
-  {id:5, name:'化神境',   color:'#4d8de0', aura:'rgba(77,141,224,0.35)', ptype:'blue'},
-  {id:6, name:'合体境',   color:'#e04343', aura:'rgba(224,67,67,0.4)',   ptype:'red',   unlock:'⚡ 领域压制·战斗进化'},
-  {id:7, name:'大乘境',   color:'#ff6b6b', aura:'rgba(255,107,107,0.45)',ptype:'red'},
-  {id:8, name:'渡劫境',   color:'#f0f0f0', aura:'rgba(255,255,255,0.45)',ptype:'white', unlock:'🌩 天劫事件链'},
-  {id:9, name:'真仙境',   color:'#f5d98e', aura:'rgba(245,217,142,0.55)',ptype:'divine',unlock:'✨ 飞升转世'},
+  {id:0, name:'飘渺境',   color:'#666',    aura:'rgba(100,100,100,0.05)', ptype:'qi'},
+  {id:1, name:'凡人境',   color:'#8888aa', aura:'rgba(136,136,170,0.15)',  ptype:'qi',    unlock:'⚔ 战斗系统·取名'},
+  {id:2, name:'练气境',   color:'#c9a84c', aura:'rgba(201,168,76,0.15)', ptype:'qi',    unlock:'⚒ 装备强化系统'},
+  {id:3, name:'筑基境',   color:'#4db88d', aura:'rgba(77,184,141,0.2)',  ptype:'jade',  unlock:'🌟 灵根觉醒'},
+  {id:4, name:'金丹境',   color:'#e0a800', aura:'rgba(224,168,0,0.25)',  ptype:'qi',    unlock:'🔮 神通树'},
+  {id:5, name:'元婴境',   color:'#b04de0', aura:'rgba(176,77,224,0.3)',  ptype:'purple'},
+  {id:6, name:'化神境',   color:'#4d8de0', aura:'rgba(77,141,224,0.35)', ptype:'blue'},
+  {id:7, name:'合体境',   color:'#e04343', aura:'rgba(224,67,67,0.4)',   ptype:'red',   unlock:'⚡ 领域压制·战斗进化'},
+  {id:8, name:'大乘境',   color:'#ff6b6b', aura:'rgba(255,107,107,0.45)',ptype:'red'},
+  {id:9, name:'渡劫境',   color:'#f0f0f0', aura:'rgba(255,255,255,0.45)',ptype:'white', unlock:'🌩 天劫事件链'},
+  {id:10, name:'真仙境',   color:'#f5d98e', aura:'rgba(245,217,142,0.55)',ptype:'divine',unlock:'✨ 飞升转世'},
 ];
 
 // ===== 境界数据 =====
 const REALMS = [
-  {n:'凡人',       stage:0, exp:1200,    qi:0.3,   atk:3,   hp:30,  bt:0.45, cost:0},
-  {n:'练气一层',   stage:1, exp:2250,   qi:0.54, atk:5,   hp:50,  bt:0.75, cost:600},
-  {n:'练气二层',   stage:1, exp:3750,   qi:0.75, atk:7,   hp:70,  bt:0.70, cost:1000},
-  {n:'练气三层',   stage:1, exp:6000,   qi:1.05, atk:9,   hp:90,  bt:0.65, cost:1500},
-  {n:'练气四层',   stage:1, exp:9000,   qi:1.5,   atk:12,  hp:120, bt:0.60, cost:2200},
-  {n:'练气五层',   stage:1, exp:13500,   qi:2.1,   atk:16,  hp:160, bt:0.55, cost:3200},
-  {n:'练气六层',   stage:1, exp:19500,  qi:3.0,  atk:21,  hp:210, bt:0.50, cost:4500},
-  {n:'练气七层',   stage:1, exp:27000,  qi:4.2,  atk:28,  hp:280, bt:0.45, cost:6000},
-  {n:'练气八成',   stage:1, exp:37500,  qi:6.0,  atk:36,  hp:360, bt:0.40, cost:8000},
-  {n:'练气九层',   stage:1, exp:52500,  qi:8.4,  atk:46,  hp:460, bt:0.35, cost:11000},
-  {n:'筑基初期',   stage:2, exp:82500,  qi:12.0,  atk:60,  hp:600, bt:0.30, cost:18000},
-  {n:'筑基中期',   stage:2, exp:127500,  qi:17.4,  atk:80,  hp:800, bt:0.25, cost:28000},
-  {n:'筑基后期',   stage:2, exp:195000, qi:25.5,  atk:110, hp:1050,bt:0.20, cost:42000},
-  {n:'金丹初期',   stage:3, exp:300000, qi:39.0, atk:150, hp:1400,bt:0.18, cost:65000},
-  {n:'金丹中期',   stage:3, exp:480000, qi:60.0, atk:210, hp:1900,bt:0.15, cost:100000},
-  {n:'金丹后期',   stage:3, exp:750000, qi:90.0, atk:290, hp:2500,bt:0.12, cost:160000},
-  {n:'元婴初期',   stage:4, exp:1200000, qi:135.0, atk:400, hp:3400,bt:0.10, cost:260000},
-  {n:'元婴中期',   stage:4, exp:1950000,qi:204.0, atk:550, hp:4600,bt:0.08, cost:420000},
-  {n:'元婴后期',   stage:4, exp:3150000,qi:300.0,atk:750, hp:6200,bt:0.06, cost:680000},
-  {n:'化神期',     stage:5, exp:5250000,qi:480.0,atk:1050,hp:8500,bt:0.04, cost:1100000},
-  {n:'合体期',     stage:6, exp:9000000,qi:780.0,atk:1450,hp:11500,bt:0.03, cost:1800000},
-  {n:'大乘期',     stage:7, exp:15000000,qi:1260.0,atk:2000,hp:16000,bt:0.02, cost:3000000},
-  {n:'渡劫期',     stage:8, exp:27000000,qi:2100.0,atk:2800,hp:22000,bt:0.015,cost:5000000},
-  {n:'真仙',       stage:9, exp:Infinity,qi:3600.0,atk:4000,hp:99999,bt:0,cost:0},
+  {n:'游魂',       stage:0, exp:300,    qi:0.1,  atk:1,   hp:10,  bt:0.85, cost:0},
+  {n:'灵虫',       stage:0, exp:600,    qi:0.15, atk:2,   hp:15,  bt:0.80, cost:0},
+  {n:'蝼蚁',       stage:0, exp:900,    qi:0.2,  atk:2,   hp:20,  bt:0.75, cost:0},
+  {n:'凡人',       stage:1, exp:1200,    qi:0.3,   atk:3,   hp:30,  bt:0.40, cost:0},
+  {n:'练气一层',   stage:2, exp:2250,   qi:0.54, atk:5,   hp:50,  bt:0.40, cost:600},
+  {n:'练气二层',   stage:2, exp:3750,   qi:0.75, atk:7,   hp:70,  bt:0.38, cost:1000},
+  {n:'练气三层',   stage:2, exp:6000,   qi:1.05, atk:9,   hp:90,  bt:0.36, cost:1500},
+  {n:'练气四层',   stage:2, exp:9000,   qi:1.5,   atk:12,  hp:120, bt:0.34, cost:2200},
+  {n:'练气五层',   stage:2, exp:13500,   qi:2.1,   atk:16,  hp:160, bt:0.32, cost:3200},
+  {n:'练气六层',   stage:2, exp:19500,  qi:3.0,  atk:21,  hp:210, bt:0.22, cost:4500},
+  {n:'练气七层',   stage:2, exp:27000,  qi:4.2,  atk:28,  hp:280, bt:0.28, cost:6000},
+  {n:'练气八成',   stage:2, exp:37500,  qi:6.0,  atk:36,  hp:360, bt:0.40, cost:8000},
+  {n:'练气九层',   stage:2, exp:52500,  qi:8.4,  atk:46,  hp:460, bt:0.24, cost:11000},
+  {n:'筑基初期',   stage:3, exp:82500,  qi:12.0,  atk:60,  hp:600, bt:0.30, cost:18000},
+  {n:'筑基中期',   stage:3, exp:127500,  qi:17.4,  atk:80,  hp:800, bt:0.05, cost:28000},
+  {n:'筑基后期',   stage:3, exp:195000, qi:25.5,  atk:110, hp:1050,bt:0.20, cost:42000},
+  {n:'金丹初期',   stage:4, exp:300000, qi:39.0, atk:150, hp:1400,bt:0.18, cost:65000},
+  {n:'金丹中期',   stage:4, exp:480000, qi:60.0, atk:210, hp:1900,bt:0.15, cost:100000},
+  {n:'金丹后期',   stage:4, exp:750000, qi:90.0, atk:290, hp:2500,bt:0.12, cost:160000},
+  {n:'元婴初期',   stage:5, exp:1200000, qi:135.0, atk:400, hp:3400,bt:0.10, cost:260000},
+  {n:'元婴中期',   stage:5, exp:1950000,qi:204.0, atk:550, hp:4600,bt:0.08, cost:420000},
+  {n:'元婴后期',   stage:5, exp:3150000,qi:300.0,atk:750, hp:6200,bt:0.06, cost:680000},
+  {n:'化神期',     stage:6, exp:5250000,qi:480.0,atk:1050,hp:8500,bt:0.01, cost:1100000},
+  {n:'合体期',     stage:7, exp:9000000,qi:780.0,atk:1450,hp:11500,bt:0.03, cost:1800000},
+  {n:'大乘期',     stage:8, exp:15000000,qi:1260.0,atk:2000,hp:16000,bt:0.02, cost:3000000},
+  {n:'渡劫期',     stage:9, exp:27000000,qi:2100.0,atk:2800,hp:22000,bt:0.015,cost:5000000},
+  {n:'真仙',       stage:10, exp:Infinity,qi:3600.0,atk:4000,hp:99999,bt:0,cost:0},
 ];
 
 // ===== 灵根类型 =====
@@ -545,56 +549,56 @@ const LINGGEN = {
 
 // ===== 功法 =====
 const SKILLS = [
-  {id:'s1',n:'基础吐纳术',d:'灵力获取 +20%',c:250,e:{t:'qi',v:0.2},minR:0},
-  {id:'s2',n:'玉清心经',d:'灵力获取 +35%',c:1000,e:{t:'qi',v:0.35},minR:1},
-  {id:'s3',n:'日月精华诀',d:'灵力获取 +50%',c:3000,e:{t:'qi',v:0.50},minR:3},
-  {id:'s4',n:'青龙炼气法',d:'灵力获取 +80%',c:10000,e:{t:'qi',v:0.80},minR:6},
-  {id:'s5',n:'太虚真气诀',d:'灵力获取 +120%',c:30000,e:{t:'qi',v:1.2},minR:10},
-  {id:'s6',n:'鸿蒙紫气功',d:'灵力获取 +200%',c:100000,e:{t:'qi',v:2.0},minR:16},
-  {id:'s7',n:'混沌吞天诀',d:'灵力获取 +350%',c:500000,e:{t:'qi',v:3.5},minR:22},
-  {id:'a1',n:'破境丹方残卷',d:'突破率 +5%',c:1500,e:{t:'bt',v:0.05},minR:0},
-  {id:'a2',n:'破境丹方全本',d:'突破率 +10%',c:7500,e:{t:'bt',v:0.10},minR:6},
-  {id:'a3',n:'九转金丹',d:'突破率 +15%',c:25000,e:{t:'bt',v:0.15},minR:12},
-  {id:'a4',n:'涅槃重生丹',d:'突破率 +20%',c:150000,e:{t:'bt',v:0.20},minR:18},
-  {id:'c1',n:'聚灵手诀',d:'点击伤害 +40%',c:500,e:{t:'click',v:0.4},minR:0},
-  {id:'c2',n:'天罡指法',d:'点击伤害 +80%',c:4000,e:{t:'click',v:0.8},minR:5},
-  {id:'c3',n:'大荒囚天指',d:'点击伤害 +150%',c:25000,e:{t:'click',v:1.5},minR:12},
-  {id:'c4',n:'灭世一指',d:'点击伤害 +300%',c:250000,e:{t:'click',v:3.0},minR:20},
+  {id:'s1',n:'基础吐纳术',d:'灵力获取 +20%',c:250,e:{t:'qi',v:0.2},minR:3},
+  {id:'s2',n:'玉清心经',d:'灵力获取 +35%',c:1000,e:{t:'qi',v:0.35},minR:4},
+  {id:'s3',n:'日月精华诀',d:'灵力获取 +50%',c:3000,e:{t:'qi',v:0.50},minR:6},
+  {id:'s4',n:'青龙炼气法',d:'灵力获取 +80%',c:10000,e:{t:'qi',v:0.80},minR:9},
+  {id:'s5',n:'太虚真气诀',d:'灵力获取 +120%',c:30000,e:{t:'qi',v:1.2},minR:13},
+  {id:'s6',n:'鸿蒙紫气功',d:'灵力获取 +200%',c:100000,e:{t:'qi',v:2.0},minR:19},
+  {id:'s7',n:'混沌吞天诀',d:'灵力获取 +350%',c:500000,e:{t:'qi',v:3.5},minR:25},
+  {id:'a1',n:'破境丹方残卷',d:'突破率 +5%',c:1500,e:{t:'bt',v:0.05},minR:3},
+  {id:'a2',n:'破境丹方全本',d:'突破率 +10%',c:7500,e:{t:'bt',v:0.10},minR:9},
+  {id:'a3',n:'九转金丹',d:'突破率 +15%',c:25000,e:{t:'bt',v:0.15},minR:15},
+  {id:'a4',n:'涅槃重生丹',d:'突破率 +20%',c:150000,e:{t:'bt',v:0.20},minR:21},
+  {id:'c1',n:'聚灵手诀',d:'点击伤害 +40%',c:500,e:{t:'click',v:0.4},minR:3},
+  {id:'c2',n:'天罡指法',d:'点击伤害 +80%',c:4000,e:{t:'click',v:0.8},minR:8},
+  {id:'c3',n:'大荒囚天指',d:'点击伤害 +150%',c:25000,e:{t:'click',v:1.5},minR:15},
+  {id:'c4',n:'灭世一指',d:'点击伤害 +300%',c:250000,e:{t:'click',v:3.0},minR:23},
 ];
 
 // ===== 神通 (元婴解锁) =====
 const SHENTONG = [
-  {id:'st1',n:'万剑归宗',d:'自动攻击间隔-40%',c:75000,e:{t:'aspd',v:0.4},minR:16, icon:'⚔️'},
-  {id:'st2',n:'法天象地',d:'全属性+25%',c:100000,e:{t:'all',v:0.25},minR:16, icon:'🏛️'},
-  {id:'st3',n:'一气化三清',d:'分身自动攻击(额外30%伤害)',c:125000,e:{t:'clone',v:0.3},minR:17, icon:'👥'},
-  {id:'st4',n:'袖里乾坤',d:'装备掉落率+50%',c:90000,e:{t:'drop',v:0.5},minR:16, icon:'👘'},
-  {id:'st5',n:'移星换斗',d:'修炼速度+40%',c:100000,e:{t:'qi',v:0.4},minR:17, icon:'🌌'},
-  {id:'st6',n:'不死真身',d:'死亡时50%概率保留1HP',c:150000,e:{t:'revive',v:0.5},minR:18, icon:'💀'},
+  {id:'st1',n:'万剑归宗',d:'自动攻击间隔-40%',c:75000,e:{t:'aspd',v:0.4},minR:19, icon:'⚔️'},
+  {id:'st2',n:'法天象地',d:'全属性+25%',c:100000,e:{t:'all',v:0.25},minR:19, icon:'🏛️'},
+  {id:'st3',n:'一气化三清',d:'分身自动攻击(额外30%伤害)',c:125000,e:{t:'clone',v:0.3},minR:20, icon:'👥'},
+  {id:'st4',n:'袖里乾坤',d:'装备掉落率+50%',c:90000,e:{t:'drop',v:0.5},minR:19, icon:'👘'},
+  {id:'st5',n:'移星换斗',d:'修炼速度+40%',c:100000,e:{t:'qi',v:0.4},minR:20, icon:'🌌'},
+  {id:'st6',n:'不死真身',d:'死亡时50%概率保留1HP',c:150000,e:{t:'revive',v:0.5},minR:21, icon:'💀'},
 ];
 
 // ===== 敌人 (按境界梯度增强) =====
 const ENEMIES = [
-  {n:'山野妖兔',e:'🐰',hp:25,atk:2,qi:15,minR:0},
-  {n:'赤练蛇',e:'🐍',hp:40,atk:3,qi:25,minR:0},
-  {n:'石魔',e:'🗿',hp:60,atk:4,qi:35,minR:2},
-  {n:'血狼',e:'🐺',hp:80,atk:6,qi:50,minR:3},
-  {n:'阴魂',e:'👻',hp:110,atk:8,qi:70,minR:5},
-  {n:'黑风妖',e:'🐗',hp:150,atk:10,qi:100,minR:7},
-  {n:'噬灵虫',e:'🐛',hp:200,atk:13,qi:140,minR:9},
-  {n:'骷髅将军',e:'💀',hp:280,atk:18,qi:200,minR:10},
-  {n:'魅魔',e:'🧜',hp:380,atk:24,qi:280,minR:11},
-  {n:'邪修',e:'🧙',hp:520,atk:32,qi:400,minR:13},
-  {n:'妖兽',e:'🦖',hp:720,atk:42,qi:560,minR:14},
-  {n:'魔将',e:'👾',hp:1000,atk:55,qi:800,minR:15},
-  {n:'妖王',e:'🐲',hp:1400,atk:72,qi:1100,minR:16},
-  {n:'天魔',e:'😈',hp:2000,atk:95,qi:1600,minR:17},
-  {n:'上古凶兽',e:'🦅',hp:2800,atk:125,qi:2200,minR:18},
-  {n:'域外邪神',e:'👽',hp:4000,atk:170,qi:3000,minR:19},
+  {n:'山野妖兔',e:'🐰',hp:25,atk:2,qi:15,minR:6},
+  {n:'赤练蛇',e:'🐍',hp:40,atk:3,qi:25,minR:6},
+  {n:'石魔',e:'🗿',hp:60,atk:4,qi:35,minR:8},
+  {n:'血狼',e:'🐺',hp:80,atk:6,qi:50,minR:9},
+  {n:'阴魂',e:'👻',hp:110,atk:8,qi:70,minR:11},
+  {n:'黑风妖',e:'🐗',hp:150,atk:10,qi:100,minR:13},
+  {n:'噬灵虫',e:'🐛',hp:200,atk:13,qi:140,minR:15},
+  {n:'骷髅将军',e:'💀',hp:280,atk:18,qi:200,minR:16},
+  {n:'魅魔',e:'🧜',hp:380,atk:24,qi:280,minR:17},
+  {n:'邪修',e:'🧙',hp:520,atk:32,qi:400,minR:19},
+  {n:'妖兽',e:'🦖',hp:720,atk:42,qi:560,minR:20},
+  {n:'魔将',e:'👾',hp:1000,atk:55,qi:800,minR:21},
+  {n:'妖王',e:'🐲',hp:1400,atk:72,qi:1100,minR:22},
+  {n:'天魔',e:'😈',hp:2000,atk:95,qi:1600,minR:23},
+  {n:'上古凶兽',e:'🦅',hp:2800,atk:125,qi:2200,minR:24},
+  {n:'域外邪神',e:'👽',hp:4000,atk:170,qi:3000,minR:25},
   // 高阶专属敌人
-  {n:'九幽魔尊',e:'👹',hp:6000,atk:240,qi:4500,minR:20},
-  {n:'太古龙皇',e:'🐉',hp:9000,atk:340,qi:7000,minR:21},
-  {n:'天外邪魔',e:'🛸',hp:14000,atk:480,qi:11000,minR:22},
-  {n:'混沌古神',e:'🌌',hp:22000,atk:700,qi:18000,minR:23},
+  {n:'九幽魔尊',e:'👹',hp:6000,atk:240,qi:4500,minR:26},
+  {n:'太古龙皇',e:'🐉',hp:9000,atk:340,qi:7000,minR:27},
+  {n:'天外邪魔',e:'🛸',hp:14000,atk:480,qi:11000,minR:28},
+  {n:'混沌古神',e:'🌌',hp:22000,atk:700,qi:18000,minR:29},
 ];
 
 // ===== 装备库 (扩展) =====
@@ -660,11 +664,11 @@ const EVENTS = [
     {t:'等待灵药完全成熟',e:'1',act(){if(Math.random()<0.6){let g=randInt(150,350);S.qi+=g;return'等到成熟！+'+fmt(g)+' 灵力'}else{return'被妖兽抢先一步，一无所获...'}}},
   ]},
   // 高阶事件 (元婴+)
-  {icon:'🌩️',t:'天劫预兆',d:'天空雷云密布，天劫将至...',minR:16,ch:[
+  {icon:'🌩️',t:'天劫预兆',d:'天空雷云密布，天劫将至...',minR:22,ch:[
     {t:'硬抗天劫 (消耗500灵力)',e:'S.qi>499',act(){S.qi-=500;if(Math.random()<0.5){let g=randInt(300,800);S.qi+=g;S.exp+=Math.floor(getRealm().exp*0.2);return'渡劫成功！修为大进+'+fmt(g)+'灵力'}else{S.qi=Math.max(0,S.qi-300);return'渡劫失败，身负重伤...'}}},
     {t:'寻找避雷之地',e:'1',act(){return'躲过一劫，但错过了修炼机会。(无变化)'}},
   ]},
-  {icon:'⚗️',t:'仙人遗府',d:'发现上古仙人洞府...',minR:18,ch:[
+  {icon:'⚗️',t:'仙人遗府',d:'发现上古仙人洞府...',minR:24,ch:[
     {t:'探索洞府',e:'1',act(){if(Math.random()<0.4){triggerRareDrop();return'发现仙人遗宝！获得稀有装备'}else{S.qi+=randInt(200,600);return'获得一些丹药，+灵力'}}},
     {t:'在门口参悟',e:'1',act(){S.exp+=Math.floor(getRealm().exp*0.25);return'参悟仙人遗留的道韵...修为大增'}},
   ]},
@@ -698,6 +702,7 @@ const DEF = ()=>({
   prestigeBonus:0,      // 永久加成百分比
   visibleRealms:[],     // 已解锁可见境界
   stageUnlocked:0,      // 已解锁到第几个大境界
+  daoName:'',            // 道号（凡人后取名）
   cultivation:0,        // 当前境界功法修炼进度
 });
 
@@ -713,6 +718,12 @@ function loadState(){
     let r=JSON.parse(raw);
     let merged={...DEF(),...r};
     if(typeof merged.realm!=='number'||typeof merged.qi!=='number')throw new Error('存档损坏');
+    // v0.4 迁移: 旧存档境界+3 (新增三蒙昧阶段)
+    if(!merged._migrated&&merged.realm<3&&merged.prestige===0){
+      merged.realm+=3;
+      merged._migrated=true;
+      console.log('存档迁移: realm',merged.realm-3,'→',merged.realm);
+    }
     // 向后兼容: 如果旧存档装备没有enhance字段
     for(let k of ['weapon','armor','accessory']){
       if(merged.equip[k]&&typeof merged.equip[k].enhance!=='number')merged.equip[k].enhance=0;
@@ -1019,19 +1030,28 @@ function closeBreakthrough(){
 function doStageBreakthrough(newStage){
   let st=STAGES[newStage];
   let msg='';
+  // 凡人境: 取名
+  if(newStage===1&&!S.daoName){
+    setTimeout(()=>{
+      let nm=prompt('🎉 踏入凡人境！请输入道号：','无名修士');
+      S.daoName=nm||'无名修士';
+      updateVisuals();
+      save();
+    },2000);
+  }
   // 金丹境: 灵根觉醒
-  if(newStage===3&&!S.linggenChosen){
+  if(newStage===7&&!S.linggenChosen){
     msg='🌟 金丹已成！灵根觉醒...';
     setTimeout(()=>openLinggenOverlay(),1500);
   }
   // 元婴境: 神通解锁
-  if(newStage===4)msg='🔮 元婴凝聚！神通树开启...';
+  if(newStage===7)msg='🔮 元婴凝聚！神通树开启...';
   // 合体境: 领域压制
-  if(newStage===6)msg='⚡ 合体大成！领域压制解锁，战斗节奏改变...';
+  if(newStage===7)msg='⚡ 合体大成！领域压制解锁，战斗节奏改变...';
   // 渡劫境: 天劫事件链
-  if(newStage===8)msg='🌩 渡劫将至！天劫事件链解锁...';
+  if(newStage===10)msg='🌩 渡劫将至！天劫事件链解锁...';
   // 真仙境: 飞升
-  if(newStage===9)msg='✨ 已成真仙！可选择飞升转世，保留所有灵根传承...';
+  if(newStage===10)msg='✨ 已成真仙！可选择飞升转世，保留所有灵根传承...';
   if(msg)showToast(msg);
   // 更新大境界解锁记录
   if(newStage>S.stageUnlocked)S.stageUnlocked=newStage;
@@ -1134,7 +1154,7 @@ window.enhanceEquip=enhanceEquip;
 
 // ===== 转世系统 =====
 function doPrestige(){
-  if(S.realm<23)return;
+  if(S.realm<26)return;
   if(!confirm('飞升转世将重置修为、境界和装备，但保留灵根和永久加成。\n\n当前灵根: '+(S.linggen?LINGGEN[S.linggen].n:'无')+'\n转世次数: '+S.prestige+'\n确定飞升？'))return;
   let oldLinggen=S.linggen;
   let oldPrestige=S.prestige+1;
@@ -1250,7 +1270,7 @@ function updateUnlockBar(){
     html+='<span style="color:#8888a0;font-size:0.7em;margin-left:4px">💡 先买功法→点球修炼→攒灵力→功法修炼满→突破</span>';
   }
   // 检查是否在真仙
-  if(S.realm>=23&&S.prestige===0){
+  if(S.realm>=26&&S.prestige===0){
     html+=' <span class="new" style="cursor:pointer" onclick="doPrestige()">[飞升转世]</span>';
   }
   el.innerHTML=html;
@@ -1329,7 +1349,7 @@ function refreshPanel(){
         h+=`<div class="equip-card"><div class="equip-icon">${sl.n[0]+sl.n[1]}</div><div class="equip-info equip-empty">${sl.n} — 击败敌人有几率掉落</div></div>`;
       }
     });
-    if(S.realm<10)h+='<div style="text-align:center;color:var(--text-dim);font-size:0.7em;margin-top:8px">🔒 装备强化在筑基境解锁</div>';
+    if(S.realm<13)h+='<div style="text-align:center;color:var(--text-dim);font-size:0.7em;margin-top:8px">🔒 装备强化在筑基境解锁</div>';
   }else if(currentPanel==='bt'){
     let n=getNext();
     if(n){
@@ -1358,7 +1378,7 @@ function refreshPanel(){
       h+='</div>';
     }
   }else if(currentPanel==='shentong'){
-    if(S.realm<16){
+    if(S.realm<19){
       h+='<div style="text-align:center;padding:20px;color:var(--text-dim)">🔒 元婴境解锁神通树</div>';
     }else{
       SHENTONG.forEach(st=>{
