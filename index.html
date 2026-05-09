@@ -491,30 +491,30 @@ const STAGES = [
 
 // ===== 境界数据 =====
 const REALMS = [
-  {n:'凡人',       stage:0, exp:80,    qi:1,   atk:3,   hp:30,  bt:0.45, cost:0},
-  {n:'练气一层',   stage:1, exp:150,   qi:1.8, atk:5,   hp:50,  bt:0.75, cost:60},
-  {n:'练气二层',   stage:1, exp:250,   qi:2.5, atk:7,   hp:70,  bt:0.70, cost:100},
-  {n:'练气三层',   stage:1, exp:400,   qi:3.5, atk:9,   hp:90,  bt:0.65, cost:150},
-  {n:'练气四层',   stage:1, exp:600,   qi:5,   atk:12,  hp:120, bt:0.60, cost:220},
-  {n:'练气五层',   stage:1, exp:900,   qi:7,   atk:16,  hp:160, bt:0.55, cost:320},
-  {n:'练气六层',   stage:1, exp:1300,  qi:10,  atk:21,  hp:210, bt:0.50, cost:450},
-  {n:'练气七层',   stage:1, exp:1800,  qi:14,  atk:28,  hp:280, bt:0.45, cost:600},
-  {n:'练气八成',   stage:1, exp:2500,  qi:20,  atk:36,  hp:360, bt:0.40, cost:800},
-  {n:'练气九层',   stage:1, exp:3500,  qi:28,  atk:46,  hp:460, bt:0.35, cost:1100},
-  {n:'筑基初期',   stage:2, exp:5500,  qi:40,  atk:60,  hp:600, bt:0.30, cost:1800},
-  {n:'筑基中期',   stage:2, exp:8500,  qi:58,  atk:80,  hp:800, bt:0.25, cost:2800},
-  {n:'筑基后期',   stage:2, exp:13000, qi:85,  atk:110, hp:1050,bt:0.20, cost:4200},
-  {n:'金丹初期',   stage:3, exp:20000, qi:130, atk:150, hp:1400,bt:0.18, cost:6500},
-  {n:'金丹中期',   stage:3, exp:32000, qi:200, atk:210, hp:1900,bt:0.15, cost:10000},
-  {n:'金丹后期',   stage:3, exp:50000, qi:300, atk:290, hp:2500,bt:0.12, cost:16000},
-  {n:'元婴初期',   stage:4, exp:80000, qi:450, atk:400, hp:3400,bt:0.10, cost:26000},
-  {n:'元婴中期',   stage:4, exp:130000,qi:680, atk:550, hp:4600,bt:0.08, cost:42000},
-  {n:'元婴后期',   stage:4, exp:210000,qi:1000,atk:750, hp:6200,bt:0.06, cost:68000},
-  {n:'化神期',     stage:5, exp:350000,qi:1600,atk:1050,hp:8500,bt:0.04, cost:110000},
-  {n:'合体期',     stage:6, exp:600000,qi:2600,atk:1450,hp:11500,bt:0.03, cost:180000},
-  {n:'大乘期',     stage:7, exp:1000000,qi:4200,atk:2000,hp:16000,bt:0.02, cost:300000},
-  {n:'渡劫期',     stage:8, exp:1800000,qi:7000,atk:2800,hp:22000,bt:0.015,cost:500000},
-  {n:'真仙',       stage:9, exp:Infinity,qi:12000,atk:4000,hp:99999,bt:0,cost:0},
+  {n:'凡人',       stage:0, exp:1200,    qi:0.3,   atk:3,   hp:30,  bt:0.45, cost:0},
+  {n:'练气一层',   stage:1, exp:2250,   qi:0.54, atk:5,   hp:50,  bt:0.75, cost:600},
+  {n:'练气二层',   stage:1, exp:3750,   qi:0.75, atk:7,   hp:70,  bt:0.70, cost:1000},
+  {n:'练气三层',   stage:1, exp:6000,   qi:1.05, atk:9,   hp:90,  bt:0.65, cost:1500},
+  {n:'练气四层',   stage:1, exp:9000,   qi:1.5,   atk:12,  hp:120, bt:0.60, cost:2200},
+  {n:'练气五层',   stage:1, exp:13500,   qi:2.1,   atk:16,  hp:160, bt:0.55, cost:3200},
+  {n:'练气六层',   stage:1, exp:19500,  qi:3.0,  atk:21,  hp:210, bt:0.50, cost:4500},
+  {n:'练气七层',   stage:1, exp:27000,  qi:4.2,  atk:28,  hp:280, bt:0.45, cost:6000},
+  {n:'练气八成',   stage:1, exp:37500,  qi:6.0,  atk:36,  hp:360, bt:0.40, cost:8000},
+  {n:'练气九层',   stage:1, exp:52500,  qi:8.4,  atk:46,  hp:460, bt:0.35, cost:11000},
+  {n:'筑基初期',   stage:2, exp:82500,  qi:12.0,  atk:60,  hp:600, bt:0.30, cost:18000},
+  {n:'筑基中期',   stage:2, exp:127500,  qi:17.4,  atk:80,  hp:800, bt:0.25, cost:28000},
+  {n:'筑基后期',   stage:2, exp:195000, qi:25.5,  atk:110, hp:1050,bt:0.20, cost:42000},
+  {n:'金丹初期',   stage:3, exp:300000, qi:39.0, atk:150, hp:1400,bt:0.18, cost:65000},
+  {n:'金丹中期',   stage:3, exp:480000, qi:60.0, atk:210, hp:1900,bt:0.15, cost:100000},
+  {n:'金丹后期',   stage:3, exp:750000, qi:90.0, atk:290, hp:2500,bt:0.12, cost:160000},
+  {n:'元婴初期',   stage:4, exp:1200000, qi:135.0, atk:400, hp:3400,bt:0.10, cost:260000},
+  {n:'元婴中期',   stage:4, exp:1950000,qi:204.0, atk:550, hp:4600,bt:0.08, cost:420000},
+  {n:'元婴后期',   stage:4, exp:3150000,qi:300.0,atk:750, hp:6200,bt:0.06, cost:680000},
+  {n:'化神期',     stage:5, exp:5250000,qi:480.0,atk:1050,hp:8500,bt:0.04, cost:1100000},
+  {n:'合体期',     stage:6, exp:9000000,qi:780.0,atk:1450,hp:11500,bt:0.03, cost:1800000},
+  {n:'大乘期',     stage:7, exp:15000000,qi:1260.0,atk:2000,hp:16000,bt:0.02, cost:3000000},
+  {n:'渡劫期',     stage:8, exp:27000000,qi:2100.0,atk:2800,hp:22000,bt:0.015,cost:5000000},
+  {n:'真仙',       stage:9, exp:Infinity,qi:3600.0,atk:4000,hp:99999,bt:0,cost:0},
 ];
 
 // ===== 灵根类型 =====
@@ -528,31 +528,31 @@ const LINGGEN = {
 
 // ===== 功法 =====
 const SKILLS = [
-  {id:'s1',n:'基础吐纳术',d:'灵力获取 +20%',c:50,e:{t:'qi',v:0.2},minR:0},
-  {id:'s2',n:'玉清心经',d:'灵力获取 +35%',c:200,e:{t:'qi',v:0.35},minR:1},
-  {id:'s3',n:'日月精华诀',d:'灵力获取 +50%',c:600,e:{t:'qi',v:0.50},minR:3},
-  {id:'s4',n:'青龙炼气法',d:'灵力获取 +80%',c:2000,e:{t:'qi',v:0.80},minR:6},
-  {id:'s5',n:'太虚真气诀',d:'灵力获取 +120%',c:6000,e:{t:'qi',v:1.2},minR:10},
-  {id:'s6',n:'鸿蒙紫气功',d:'灵力获取 +200%',c:20000,e:{t:'qi',v:2.0},minR:16},
-  {id:'s7',n:'混沌吞天诀',d:'灵力获取 +350%',c:100000,e:{t:'qi',v:3.5},minR:22},
-  {id:'a1',n:'破境丹方残卷',d:'突破率 +5%',c:300,e:{t:'bt',v:0.05},minR:0},
-  {id:'a2',n:'破境丹方全本',d:'突破率 +10%',c:1500,e:{t:'bt',v:0.10},minR:6},
-  {id:'a3',n:'九转金丹',d:'突破率 +15%',c:5000,e:{t:'bt',v:0.15},minR:12},
-  {id:'a4',n:'涅槃重生丹',d:'突破率 +20%',c:30000,e:{t:'bt',v:0.20},minR:18},
-  {id:'c1',n:'聚灵手诀',d:'点击伤害 +40%',c:100,e:{t:'click',v:0.4},minR:0},
-  {id:'c2',n:'天罡指法',d:'点击伤害 +80%',c:800,e:{t:'click',v:0.8},minR:5},
-  {id:'c3',n:'大荒囚天指',d:'点击伤害 +150%',c:5000,e:{t:'click',v:1.5},minR:12},
-  {id:'c4',n:'灭世一指',d:'点击伤害 +300%',c:50000,e:{t:'click',v:3.0},minR:20},
+  {id:'s1',n:'基础吐纳术',d:'灵力获取 +20%',c:250,e:{t:'qi',v:0.2},minR:0},
+  {id:'s2',n:'玉清心经',d:'灵力获取 +35%',c:1000,e:{t:'qi',v:0.35},minR:1},
+  {id:'s3',n:'日月精华诀',d:'灵力获取 +50%',c:3000,e:{t:'qi',v:0.50},minR:3},
+  {id:'s4',n:'青龙炼气法',d:'灵力获取 +80%',c:10000,e:{t:'qi',v:0.80},minR:6},
+  {id:'s5',n:'太虚真气诀',d:'灵力获取 +120%',c:30000,e:{t:'qi',v:1.2},minR:10},
+  {id:'s6',n:'鸿蒙紫气功',d:'灵力获取 +200%',c:100000,e:{t:'qi',v:2.0},minR:16},
+  {id:'s7',n:'混沌吞天诀',d:'灵力获取 +350%',c:500000,e:{t:'qi',v:3.5},minR:22},
+  {id:'a1',n:'破境丹方残卷',d:'突破率 +5%',c:1500,e:{t:'bt',v:0.05},minR:0},
+  {id:'a2',n:'破境丹方全本',d:'突破率 +10%',c:7500,e:{t:'bt',v:0.10},minR:6},
+  {id:'a3',n:'九转金丹',d:'突破率 +15%',c:25000,e:{t:'bt',v:0.15},minR:12},
+  {id:'a4',n:'涅槃重生丹',d:'突破率 +20%',c:150000,e:{t:'bt',v:0.20},minR:18},
+  {id:'c1',n:'聚灵手诀',d:'点击伤害 +40%',c:500,e:{t:'click',v:0.4},minR:0},
+  {id:'c2',n:'天罡指法',d:'点击伤害 +80%',c:4000,e:{t:'click',v:0.8},minR:5},
+  {id:'c3',n:'大荒囚天指',d:'点击伤害 +150%',c:25000,e:{t:'click',v:1.5},minR:12},
+  {id:'c4',n:'灭世一指',d:'点击伤害 +300%',c:250000,e:{t:'click',v:3.0},minR:20},
 ];
 
 // ===== 神通 (元婴解锁) =====
 const SHENTONG = [
-  {id:'st1',n:'万剑归宗',d:'自动攻击间隔-40%',c:15000,e:{t:'aspd',v:0.4},minR:16, icon:'⚔️'},
-  {id:'st2',n:'法天象地',d:'全属性+25%',c:20000,e:{t:'all',v:0.25},minR:16, icon:'🏛️'},
-  {id:'st3',n:'一气化三清',d:'分身自动攻击(额外30%伤害)',c:25000,e:{t:'clone',v:0.3},minR:17, icon:'👥'},
-  {id:'st4',n:'袖里乾坤',d:'装备掉落率+50%',c:18000,e:{t:'drop',v:0.5},minR:16, icon:'👘'},
-  {id:'st5',n:'移星换斗',d:'修炼速度+40%',c:20000,e:{t:'qi',v:0.4},minR:17, icon:'🌌'},
-  {id:'st6',n:'不死真身',d:'死亡时50%概率保留1HP',c:30000,e:{t:'revive',v:0.5},minR:18, icon:'💀'},
+  {id:'st1',n:'万剑归宗',d:'自动攻击间隔-40%',c:75000,e:{t:'aspd',v:0.4},minR:16, icon:'⚔️'},
+  {id:'st2',n:'法天象地',d:'全属性+25%',c:100000,e:{t:'all',v:0.25},minR:16, icon:'🏛️'},
+  {id:'st3',n:'一气化三清',d:'分身自动攻击(额外30%伤害)',c:125000,e:{t:'clone',v:0.3},minR:17, icon:'👥'},
+  {id:'st4',n:'袖里乾坤',d:'装备掉落率+50%',c:90000,e:{t:'drop',v:0.5},minR:16, icon:'👘'},
+  {id:'st5',n:'移星换斗',d:'修炼速度+40%',c:100000,e:{t:'qi',v:0.4},minR:17, icon:'🌌'},
+  {id:'st6',n:'不死真身',d:'死亡时50%概率保留1HP',c:150000,e:{t:'revive',v:0.5},minR:18, icon:'💀'},
 ];
 
 // ===== 敌人 (按境界梯度增强) =====
@@ -880,7 +880,7 @@ function manualAttack(){
     let c=document.getElementById('character');
     c.classList.remove('crit');void c.offsetWidth;c.classList.add('crit');
   }else{
-    let g=Math.floor(getRealm().qi*3*clickMult());
+    let g=Math.floor(getRealm().qi*8*clickMult());
     S.qi+=g;S.totalQi+=g;S.exp+=g;
     spawnQiParticles(6);
     document.getElementById('character').classList.add('crit');
@@ -1352,7 +1352,7 @@ function refreshPanel(){
       <div class="skill-card"><div><h4>功法</h4><p>${S.skills.length}/${SKILLS.length}</p></div></div>
       <div class="skill-card"><div><h4>神通</h4><p>${S.shentong.length}/${SHENTONG.length}</p></div></div>
     </div>`;
-    h+=`<div style="text-align:center;margin-top:12px"><button style="padding:8px 20px;border-radius:14px;border:1px solid #e04343;background:transparent;color:#e04343;font-size:0.8em;cursor:pointer" onclick="if(confirm('确定重置所有进度？')){localStorage.removeItem('xx2_save');location.reload()}">重置游戏</button></div>`;
+    h+=`<div style="text-align:center;margin-top:12px"><button style="padding:8px 20px;border-radius:14px;border:1px solid #e04343;background:transparent;color:#e04343;font-size:0.8em;cursor:pointer" onclick="resetGame()">重置游戏</button></div>`;
   }
   c.innerHTML=h;
 }
@@ -1415,6 +1415,14 @@ function calcOffline(){
 }
 
 // ===== 初始化 =====
+function resetGame(){
+  if(!confirm('确定要重置所有进度？此操作不可撤销！'))return;
+  clearInterval(gameLoop);
+  localStorage.removeItem('xx2_save');
+  location.reload();
+}
+window.resetGame=resetGame;
+
 function init(){
   try{
     calcOffline();
