@@ -970,6 +970,9 @@ function triggerBreakthrough(){
     }
     if(S.btHistory.length>20)S.btHistory=S.btHistory.slice(0,20);
     save();refreshAll();
+    // 恢复关闭按钮
+    document.getElementById('bt-close').style.display='';
+    document.getElementById('bt-close').textContent='关闭';
     setTimeout(()=>{document.getElementById('bt-result').textContent=''},3000);
   },3000);
 }
