@@ -1146,7 +1146,7 @@ function triggerEvent(){
     choHtml+=`<button class="event-cho" ${disabled} onclick="resolveEvent(${i})">${c.t}</button>`;
   });
   document.getElementById('event-choices').innerHTML=choHtml;
-  document.getElementById('event-popup').classList.add('show');
+  document.getElementById('event-popup').classList.add('show');setTimeout(()=>{if(currentEvent){document.getElementById('event-popup').classList.remove('show');currentEvent=null;}},30000);
   closePanel();
 }
 function resolveEvent(idx){
