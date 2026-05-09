@@ -253,7 +253,7 @@ body{
   background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);
   border-radius:10px;padding:10px 14px;margin-bottom:6px;
   display:flex;align-items:center;gap:10px;
-  border-left:4px solid var(--rarity-common);
+  border-left:4px solid transparent;
 }
 .equip-icon{font-size:1.6em;width:36px;text-align:center}
 .equip-info{flex:1}
@@ -261,7 +261,13 @@ body{
 .equip-stat{font-size:0.68em;color:var(--text-dim)}
 .equip-empty{color:var(--text-dim);font-size:0.75em;text-align:center;padding:12px}
 .equip-enhance{font-size:0.65em;margin-top:2px}
-.rarity-common{color:var(--rarity-common)}.rarity-uncommon{color:var(--rarity-uncommon)}
+.rarity-common{color:var(--rarity-common)}
+.equip-card.has-rarity-common{border-left-color:var(--rarity-common)}
+.equip-card.has-rarity-uncommon{border-left-color:var(--rarity-uncommon)}
+.equip-card.has-rarity-rare{border-left-color:var(--rarity-rare)}
+.equip-card.has-rarity-epic{border-left-color:var(--rarity-epic)}
+.equip-card.has-rarity-legendary{border-left-color:var(--rarity-legendary)}
+.equip-card.has-rarity-mythic{border-left-color:var(--rarity-mythic)}.rarity-uncommon{color:var(--rarity-uncommon)}
 .rarity-rare{color:var(--rarity-rare)}.rarity-epic{color:var(--rarity-epic)}
 .rarity-legendary{color:var(--rarity-legendary)}.rarity-mythic{color:var(--rarity-mythic)}
 
@@ -818,6 +824,7 @@ function canBT(){
   let r=getRealm(),n=getNext();
   if(!n)return false;
   if(S.exp<r.exp)return false;
+  if(!isCultComplete()&&r.bt<0.40)return false; // 低突破率阶段需先完成修炼
   let cost=Math.floor(r.cost*(1-linggenBonus('bcost')));
   if(S.qi<cost)return false;
   return true;
@@ -835,7 +842,7 @@ function accelerateCultivation(){
   showToast('📖 参悟 '+getCultName()+' +'+fmt(boost));
   save();refreshAll();
 }
-function btChance(){let b=getRealm().bt+btBonus()+cultBonus();if(S.failStreak>=3)b+=0.15;return Math.min(0.95,b)}
+function btChance(){let b=getRealm().bt+btBonus()+cultBonus();if(S.failStreak>=7)b+=0.35;else if(S.failStreak>=5)b+=0.25;else if(S.failStreak>=3)b+=0.15;return Math.min(0.95,b)}
 
 // ===== 粒子系统 =====
 function spawnParticle(cls,x,y,size){
@@ -996,7 +1003,7 @@ function openBreakthrough(){
   document.getElementById('bt-result').textContent='';
   document.getElementById('bt-tension-fill').style.width='0%';
   document.getElementById('bt-btn-overlay').style.display='';
-  if(S.btCount===0){document.getElementById('bt-result').innerHTML='<span style="font-size:0.7em;color:#c9a84c">💡 点击下方按钮→进度条摆动→在<span style="color:#4db88d">绿色区域</span>内再次点击→突破！</span>';}
+  if(S.btCount===0){document.getElementById('bt-result').innerHTML='<span style="font-size:0.7em;color:#c9a84c">💡 点击下方按钮→进度条摆动→在<span style="color:#4db88d">绿色区域</span>内再次点击→突破！<br><span style="font-size:0.65em;color:#e04343">⚠ 失败将扣除灵力并损失25%修为</span></span>';}
   document.getElementById('bt-close').style.display='';
   let z=document.getElementById('bt-success-zone');
   let chance=btChance();
@@ -1090,7 +1097,7 @@ function doStageBreakthrough(newStage){
   // 合体境: 领域压制
   if(newStage===7)msg='⚡ 合体大成！领域压制解锁，战斗节奏改变...';
   // 渡劫境: 天劫事件链
-  if(newStage===10)msg='🌩 渡劫将至！天劫事件链解锁...';
+  if(newStage===9)msg='🌩 渡劫将至！天劫事件链解锁...';
   // 真仙境: 飞升
   if(newStage===10)msg='✨ 已成真仙！可选择飞升转世，保留所有灵根传承...';
   if(msg)showToast(msg);
@@ -1297,6 +1304,9 @@ function updateVisuals(){
     linggenEl.style.borderColor=lg.color;
   }
 
+  // 道号显示
+  let daoEl=document.getElementById('dao-name');
+  if(daoEl&&S.daoName){daoEl.textContent='·'+S.daoName;daoEl.style.display='inline';}
   // 转世指示器
   if(S.prestige>0){
     prestigeEl.style.display='inline';
@@ -1387,7 +1397,7 @@ function refreshPanel(){
       if(it){
         let stars='';
         for(let i=0;i<(it.enhance||0);i++)stars+='⭐';
-        h+=`<div class="equip-card"><div class="equip-icon">${sl.n[0]+sl.n[1]}</div><div class="equip-info"><div class="equip-name ${'rarity-'+it.r}">${RARITY_NAMES[it.r]} · ${it.n}</div><div class="equip-stat">`;
+        h+=`<div class="equip-card has-rarity-${it.r}"><div class="equip-icon">${sl.n[0]+sl.n[1]}</div><div class="equip-info"><div class="equip-name ${'rarity-'+it.r}">${RARITY_NAMES[it.r]} · ${it.n}</div><div class="equip-stat">`;
         if(it.a)h+=`攻击+${Math.floor(it.a*(1+(it.enhance||0)*0.15))} `;
         if(it.d)h+=`防御+${Math.floor(it.d*(1+(it.enhance||0)*0.1))} `;
         if(it.q)h+=`灵力+${Math.floor(it.q*100)}%`;
@@ -1400,7 +1410,7 @@ function refreshPanel(){
         }
         h+=`</div>`;
       }else{
-        h+=`<div class="equip-card"><div class="equip-icon">${sl.n[0]+sl.n[1]}</div><div class="equip-info equip-empty">${sl.n} — 击败敌人有几率掉落</div></div>`;
+        h+=`<div class="equip-card has-rarity-${it.r}"><div class="equip-icon">${sl.n[0]+sl.n[1]}</div><div class="equip-info equip-empty">${sl.n} — 击败敌人有几率掉落</div></div>`;
       }
     });
     if(S.realm<13)h+='<div style="text-align:center;color:var(--text-dim);font-size:0.7em;margin-top:8px">🔒 装备强化在筑基境解锁</div>';
@@ -1416,7 +1426,7 @@ function refreshPanel(){
       <div style="width:80%;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;margin:0 auto 8px"><div style="height:100%;background:${isCultComplete()?'#4db88d':'#e0a800'};border-radius:3px;width:${Math.min(100,Math.floor(S.cultivation/getCultTarget()*100))}%"></div></div>
       <div style="color:#5c5c70;font-size:0.7em;margin-bottom:4px">修炼进度 ${fmt(S.cultivation)} / ${fmt(getCultTarget())} ${isCultComplete()?'\✅ 突破率+10%':''}</div>
       <button style="padding:6px 18px;border-radius:12px;border:1px solid #e0a800;background:transparent;color:#e0a800;font-size:0.7em;cursor:pointer;margin-bottom:8px" onclick="accelerateCultivation()" ${isCultComplete()?'disabled':''}>📖 加速参悟</button>
-      <div style="color:#5c5c70;font-size:0.8em;margin-bottom:4px">成功率: ${ch}%${cultBonus()>0?' <span style="color:#4db88d">(+10%功法加成)</span>':''}${S.failStreak>=3?' <span style="color:#ff6b6b">(+15%保底)</span>':''} | 消耗: ${fmt(cost)} 灵力</div>
+      <div style="color:#5c5c70;font-size:0.8em;margin-bottom:4px">成功率: ${ch}%${cultBonus()>0?' <span style="color:#4db88d">(+10%功法加成)</span>':''}${S.failStreak>=7?' <span style="color:#ff6b6b">(+35%保底)</span>':S.failStreak>=5?' <span style="color:#ff6b6b">(+25%保底)</span>':S.failStreak>=3?' <span style="color:#ff6b6b">(+15%保底)</span>':''} | 消耗: ${fmt(cost)} 灵力</div>
       <div style="color:#5c5c70;font-size:0.75em;margin-bottom:12px">${canBT()?'<span style="color:#4db88d">可以突破！</span>':'修炼未满或灵力不足'}</div>
       <button style="padding:10px 32px;border-radius:20px;border:2px solid #c9a84c;background:rgba(201,168,76,0.15);color:#f5d98e;font-family:STKaiti,KaiTi,serif;font-size:1em;cursor:pointer" ${canBT()?'':'disabled'} onclick="openBreakthrough()">冲击境界</button></div>`;
     }else{
