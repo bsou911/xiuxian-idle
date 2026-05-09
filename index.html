@@ -103,7 +103,7 @@ body{
 
 /* 角色 */
 #character{
-  position:relative;z-index:1;
+  position:relative;
   transition:transform 0.3s;
   cursor:pointer;
 }
@@ -130,7 +130,7 @@ body{
 /* 光环 */
 #aura{
   position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-  border-radius:50%;z-index:0;
+  border-radius:50%;
   animation:auraSpin 10s linear infinite;
   pointer-events:none;
   transition: width 1s, height 1s, border-color 1s, box-shadow 1s;
@@ -140,7 +140,7 @@ body{
 /* 敌人 */
 #enemy-zone{
   position:absolute;top:15%;left:50%;transform:translateX(-50%);
-  text-align:center;z-index:1;
+  text-align:center;
   opacity:0;transition:opacity 0.5s,transform 0.5s;
   transform:translateX(-50%) translateY(20px);
 }
