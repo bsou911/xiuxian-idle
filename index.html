@@ -1222,9 +1222,14 @@ window.doPrestige=doPrestige;
 let _autoAttackTimer=0;
 let _enemySpawnThreshold=4+Math.random()*4;
 let _cloneTimer=0;
+let _lastTick=Date.now();
 function tick(){
+  // 时间增量 (解决后台节流)
+  let now=Date.now(),dt=Math.min((now-_lastTick)/1000,5);_lastTick=now;
+  let steps=Math.max(1,Math.round(dt/0.1)); // 每0.1秒一步
+  for(let step=0;step<steps;step++){
   // 自动修炼
-  let qiGain=getRealm().qi*qiMult();
+  let qiGain=getRealm().qi*qiMult()*0.1;
   S.qi+=qiGain;S.totalQi+=qiGain;S.exp+=qiGain;
   // 功法修炼
   S.cultivation=Math.min(getCultTarget(),S.cultivation+qiGain*0.3);
@@ -1252,6 +1257,7 @@ function tick(){
   if(Math.random()<0.5)spawnQiParticles(1+Math.floor(getRealm().stage/2));
   // UI更新
   refreshHUD();
+    } // end step loop
   // 自动保存
   if(Math.floor(Date.now()/10000)!==Math.floor((Date.now()-100)/10000))save();
 }
@@ -1339,7 +1345,7 @@ function refreshHUD(){
   let pct=r.exp===Infinity?100:Math.min(100,Math.floor(S.exp/r.exp*100));
   document.getElementById('exp-bar-fill').style.width=pct+'%';
   document.getElementById('exp-text').textContent=r.exp===Infinity?'已达仙道巅峰 · 可飞升转世':'修炼进度 '+fmt(S.exp)+' / '+fmt(r.exp)+(S.realm<26?' (满了可突破)':'');
-  let ct=getCultTarget(),cv=S.cultivation,cpct=Math.min(100,Math.floor(cv/ct*100));document.getElementById('cult-bar-overlay').style.width=cpct+'%';document.getElementById('cult-bar-overlay').style.background=cpct>=100?'linear-gradient(90deg,#4db88d,#7fd4b3)':'linear-gradient(90deg,#e0a800,#c9a84c)';document.getElementById('cult-text').textContent=cpct>=100?'\📖 '+getCultName()+' \✅ 已参悟 (突破率+10%)':'\📖 '+getCultName()+' '+fmt(cv)+'/'+fmt(ct);
+  let ct=getCultTarget(),cv=S.cultivation,cpct=Math.min(100,Math.floor(cv/ct*100));document.getElementById('cult-bar-overlay').style.width=cpct+'%';document.getElementById('cult-bar-overlay').style.background=cpct>=100?'linear-gradient(90deg,#4db88d,#7fd4b3)':'linear-gradient(90deg,#e0a800,#c9a84c)';document.getElementById('cult-text').textContent=cpct>=100?'\📖 '+getCultName()+' \✅ 已参悟 ✅ 突破率+10%':'\📖 '+getCultName()+' '+fmt(cv)+'/'+fmt(ct);
 }
 function refreshSkillCD(){
   let btn=document.getElementById('skill-btn');
