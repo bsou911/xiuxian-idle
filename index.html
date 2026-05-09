@@ -219,16 +219,11 @@ body{
 }
 #panels.open{transform:translateY(0)}
 #panels-close{
-  width:50px;height:6px;background:rgba(255,255,255,0.25);
-  border-radius:3px;margin:0 auto 4px;cursor:pointer;
-  padding:14px 20px;background-clip:content-box;
+  width:50px;height:5px;background:rgba(255,255,255,0.35);
+  border-radius:3px;margin:20px auto 8px;cursor:pointer;
+  padding:18px 20px;background-clip:content-box;
 }
-#panels-close::after{
-  content:"下拉关闭";
-  display:block;text-align:center;
-  font-size:0.6em;color:var(--text-dim);
-  margin-top:4px;
-}
+
 
 /* 功法/装备卡 */
 .skill-card{
@@ -1397,7 +1392,7 @@ function refreshPanel(){
       if(it){
         let stars='';
         for(let i=0;i<(it.enhance||0);i++)stars+='⭐';
-        h+=`<div class="equip-card has-rarity-${it.r}"><div class="equip-icon">${sl.n[0]+sl.n[1]}</div><div class="equip-info"><div class="equip-name ${'rarity-'+it.r}">${RARITY_NAMES[it.r]} · ${it.n}</div><div class="equip-stat">`;
+        h+=`<div class="equip-card "><div class="equip-icon">${sl.n[0]+sl.n[1]}</div><div class="equip-info"><div class="equip-name ${'rarity-'+it.r}">${RARITY_NAMES[it.r]} · ${it.n}</div><div class="equip-stat">`;
         if(it.a)h+=`攻击+${Math.floor(it.a*(1+(it.enhance||0)*0.15))} `;
         if(it.d)h+=`防御+${Math.floor(it.d*(1+(it.enhance||0)*0.1))} `;
         if(it.q)h+=`灵力+${Math.floor(it.q*100)}%`;
@@ -1410,7 +1405,7 @@ function refreshPanel(){
         }
         h+=`</div>`;
       }else{
-        h+=`<div class="equip-card has-rarity-${it.r}"><div class="equip-icon">${sl.n[0]+sl.n[1]}</div><div class="equip-info equip-empty">${sl.n} — 击败敌人有几率掉落</div></div>`;
+        h+=`<div class="equip-card "><div class="equip-icon">${sl.n[0]+sl.n[1]}</div><div class="equip-info equip-empty">${sl.n} — 击败敌人有几率掉落</div></div>`;
       }
     });
     if(S.realm<13)h+='<div style="text-align:center;color:var(--text-dim);font-size:0.7em;margin-top:8px">🔒 装备强化在筑基境解锁</div>';
