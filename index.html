@@ -151,17 +151,16 @@ body{
 #enemy-sprite{font-size:3em;animation:enemyFloat 2s ease-in-out infinite}
 @keyframes enemyFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 
-/* 技能按钮 — 固定在屏幕层，永远不被面板遮挡 */
+/* 技能按钮 — 固定于视口，高于所有面板 */
 #skill-btn{
-  position:fixed;bottom:80px;right:16px;
+  position:fixed;bottom:140px;right:16px;
   width:56px;height:56px;border-radius:50%;
   border:2px solid rgba(201,168,76,0.4);
   background:radial-gradient(circle,rgba(201,168,76,0.3),rgba(139,105,20,0.2));
   color:var(--gold-bright);font-size:1.5em;
   display:flex;align-items:center;justify-content:center;
   cursor:pointer;transition:all 0.2s;
-  z-index:25;
-  box-shadow:0 0 16px rgba(201,168,76,0.3);
+  z-index:30;
 }
 #skill-btn:active{background:rgba(201,168,76,0.5);transform:scale(0.9)}
 #skill-btn.cooldown{opacity:0.4;pointer-events:none}
@@ -208,31 +207,20 @@ body{
 /* ===== 面板 ===== */
 #panels{
   position:fixed;bottom:0;left:0;right:0;
+  background:linear-gradient(180deg,rgba(6,6,14,0.95),rgba(6,6,14,1));
+  border-top:1px solid rgba(255,255,255,0.06);
   z-index:20;
   max-height:60vh;
-  display:flex;flex-direction:column;
-  transform:translateY(105%);
+  overflow-y:auto;
+  transform:translateY(100%);
   transition:transform 0.3s ease;
   border-radius:16px 16px 0 0;
-  overflow:hidden;
-  pointer-events:none;
+  padding:16px 16px max(16px,env(safe-area-inset-bottom));
 }
-#panels.open{transform:translateY(0);pointer-events:auto}
-#panels-header{
-  flex-shrink:0;
-  padding:16px 16px 0;
-  background:linear-gradient(180deg,rgba(6,6,14,0.97),rgba(6,6,14,0.92));
-  border-top:1px solid rgba(255,255,255,0.06);
-  border-radius:16px 16px 0 0;
-}
+#panels.open{transform:translateY(0)}
 #panels-close{
-  width:40px;height:4px;background:rgba(255,255,255,0.2);
+  width:40px;height:4px;background:rgba(255,255,255,0.15);
   border-radius:2px;margin:0 auto 12px;cursor:pointer;
-}
-#panels-body{
-  flex:1;overflow-y:auto;
-  background:linear-gradient(180deg,rgba(6,6,14,0.92),rgba(6,6,14,1));
-  padding:0 16px max(24px,env(safe-area-inset-bottom));
 }
 
 /* 功法/装备卡 */
@@ -449,7 +437,6 @@ body{
       <div id="enemy-name"></div>
       <div id="enemy-hp-bar"><div id="enemy-hp-fill"></div></div>
     </div>
-    <div id="skill-btn" onclick="useSkill()">⚡</div>
   </div>
 
   <!-- 经验条 -->
@@ -474,12 +461,8 @@ body{
 
 <!-- 面板 -->
 <div id="panels">
-  <div id="panels-header">
-    <div id="panels-close" onclick="closePanel()"></div>
-  </div>
-  <div id="panels-body">
-    <div id="panel-content"></div>
-  </div>
+  <div id="panels-close" onclick="closePanel()"></div>
+  <div id="panel-content"></div>
 </div>
 
 <script>
@@ -770,6 +753,14 @@ function getDef(){
 }
 function getCritChance(){return linggenBonus('crit')}
 function getSkillCD(){return 5*(1-linggenBonus('cd'))}
+function canBT(){
+  let r=getRealm(),n=getNext();
+  if(!n)return false;
+  if(S.exp<r.exp)return false;
+  let cost=Math.floor(r.cost*(1-linggenBonus('bcost')));
+  if(S.qi<cost)return false;
+  return true;
+}
 function getCultTarget(){return Math.floor(getRealm().exp*0.8)}
 function getCultName(){return getRealm().n+'真解'}
 function isCultComplete(){return S.cultivation>=getCultTarget()}
@@ -782,14 +773,6 @@ function accelerateCultivation(){
   S.cultivation=Math.min(getCultTarget(),S.cultivation+boost);
   showToast('📖 参悟 '+getCultName()+' +'+fmt(boost));
   save();refreshAll();
-}
-function canBT(){
-  let r=getRealm(),n=getNext();
-  if(!n)return false;
-  if(S.exp<r.exp)return false;
-  let cost=Math.floor(r.cost*(1-linggenBonus('bcost')));
-  if(S.qi<cost)return false;
-  return true;
 }
 function btChance(){return Math.min(0.95,getRealm().bt+btBonus()+cultBonus())}
 
@@ -957,7 +940,7 @@ function triggerBreakthrough(){
     S.qi=Math.max(0,S.qi-cost);
     let oldStage=getRealm().stage;
     if(success){
-      S.realm++;S.exp=0;S.btCount++;S.cultivation=0;
+      S.realm++;S.exp=0;S.btCount++;S.cultivation=0;S.cultivation=0;
       let newStage=getRealm().stage;
       S.btHistory.unshift({r:getRealm().n,ok:true,ts:Date.now()});
       document.getElementById('bt-result').innerHTML='<span style="color:#4db88d">✨ 突破成功！</span><br><span style="font-size:0.7em;color:#c9a84c">晋升 '+getRealm().n+'</span>';
@@ -1239,7 +1222,7 @@ function refreshHUD(){
   let pct=r.exp===Infinity?100:Math.min(100,Math.floor(S.exp/r.exp*100));
   document.getElementById('exp-bar-fill').style.width=pct+'%';
   document.getElementById('exp-text').textContent=r.exp===Infinity?'已达仙道巅峰 · 可飞升转世':'修炼进度 '+fmt(S.exp)+' / '+fmt(r.exp);
-  let ct=getCultTarget(),cv=S.cultivation,cpct=Math.min(100,Math.floor(cv/ct*100));document.getElementById('cult-bar-fill').style.width=cpct+'%';document.getElementById('cult-bar-fill').style.background=cpct>=100?'linear-gradient(90deg,#4db88d,#7fd4b3)':'linear-gradient(90deg,#e0a800,#c9a84c)';document.getElementById('cult-text').textContent=cpct>=100?'📖 '+getCultName()+' ✅ 已参悟 (突破率+5%)':'📖 '+getCultName()+' '+fmt(cv)+'/'+fmt(ct);
+  let ct=getCultTarget(),cv=S.cultivation,cpct=Math.min(100,Math.floor(cv/ct*100));document.getElementById('cult-bar-fill').style.width=cpct+'%';document.getElementById('cult-bar-fill').style.background=cpct>=100?'linear-gradient(90deg,#4db88d,#7fd4b3)':'linear-gradient(90deg,#e0a800,#c9a84c)';document.getElementById('cult-text').textContent=cpct>=100?'\📖 '+getCultName()+' \✅ 已参悟 (突破率+5%)':'\📖 '+getCultName()+' '+fmt(cv)+'/'+fmt(ct);
 }
 function refreshSkillCD(){
   let btn=document.getElementById('skill-btn');
@@ -1311,7 +1294,7 @@ function refreshPanel(){
       <div style="color:#5c5c70;font-size:0.8em;margin-bottom:4px">大境界: ${getStage().name} → ${stName}</div>
       <div style="color:#5c5c70;font-size:0.8em;margin-bottom:4px">功法: ${getCultName()} ${isCultComplete()?'<span style="color:#4db88d">✅已参悟</span>':'<span style="color:#e0a800">参悟中...</span>'}</div>
       <div style="width:80%;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;margin:0 auto 8px"><div style="height:100%;background:${isCultComplete()?'#4db88d':'#e0a800'};border-radius:3px;width:${Math.min(100,Math.floor(S.cultivation/getCultTarget()*100))}%"></div></div>
-      <div style="color:#5c5c70;font-size:0.7em;margin-bottom:4px">修炼进度 ${fmt(S.cultivation)} / ${fmt(getCultTarget())} ${isCultComplete()?'✅ 突破率+5%':''}</div>
+      <div style="color:#5c5c70;font-size:0.7em;margin-bottom:4px">修炼进度 ${fmt(S.cultivation)} / ${fmt(getCultTarget())} ${isCultComplete()?'\✅ 突破率+5%':''}</div>
       <button style="padding:6px 18px;border-radius:12px;border:1px solid #e0a800;background:transparent;color:#e0a800;font-size:0.7em;cursor:pointer;margin-bottom:8px" onclick="accelerateCultivation()" ${isCultComplete()?'disabled':''}>📖 加速参悟</button>
       <div style="color:#5c5c70;font-size:0.8em;margin-bottom:4px">成功率: ${ch}%${cultBonus()>0?' <span style="color:#4db88d">(+5%功法加成)</span>':''} | 消耗: ${fmt(cost)} 灵力</div>
       <div style="color:#5c5c70;font-size:0.75em;margin-bottom:12px">${canBT()?'<span style="color:#4db88d">可以突破！</span>':'修炼未满或灵力不足'}</div>
@@ -1442,5 +1425,9 @@ function init(){
 }
 init();
 </script>
+
+<!-- 技能按钮 — 移出game容器避免被面板遮挡 -->
+<div id="skill-btn" onclick="useSkill()">⚡</div>
+
 </body>
 </html>
