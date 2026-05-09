@@ -1525,8 +1525,8 @@ document.head.appendChild(toastStyle);
 function calcOffline(){
   let now=Date.now(),elapsed=(now-S.lastSave)/1000;
   if(elapsed<30)return;
-  let capped=Math.min(elapsed,8*3600);
-  let gain=Math.floor(getRealm().qi*qiMult()*capped*0.3);
+  let capped=Math.min(elapsed,12*3600);
+  let gain=Math.floor(getRealm().qi*qiMult()*capped*0.5);
   if(gain>0){
     S.qi+=gain;S.totalQi+=gain;S.exp+=gain;
     let mins=Math.floor(capped/60);
