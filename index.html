@@ -640,7 +640,7 @@ function enhanceChance(level){
 // ===== 随机事件池 (扩展) =====
 const EVENTS = [
   {icon:'🧓',t:'路遇高人',d:'一位白发老者在路边打坐...',ch:[
-    {t:'虚心请教 (消耗50灵力)',e:'S.qi>49',act(){S.qi-=50;S.exp+=Math.floor(getRealm().exp*0.3);return'老者传你一段口诀，修为大涨！'}},
+    {t:'虚心请教 (消耗50灵力)',e:'S.qi>49',act(){S.qi-=50;S.exp+=Math.floor(getRealm().exp*0.3);return'老者传你一段口诀，修炼进度 +'+fmt(Math.floor(getRealm().exp*0.3))+'！'}},
     {t:'恭敬行礼后离开',e:'1',act(){return'老者微微点头，心境有所提升。(无变化)'}},
   ]},
   {icon:'🏚️',t:'破旧丹炉',d:'山洞中发现一尊破旧丹炉...',ch:[
@@ -648,7 +648,7 @@ const EVENTS = [
     {t:'尝试修复丹炉 (消耗200灵力)',e:'S.qi>199',act(){S.qi-=200;if(Math.random()<0.4){S.qi+=800;return'丹炉炸了！但你吸收了爆炸灵力+800'}else{S.qi+=300;return'修复失败但没亏，回收300灵力'}}},
   ]},
   {icon:'⚔️',t:'邪修挑衅',d:'一个邪修拦住去路...',ch:[
-    {t:'正面迎战 (成功率60%)',e:'1',act(){if(Math.random()<0.6){let g=randInt(80,200);S.qi+=g;S.exp+=Math.floor(getRealm().exp*0.15);return'击败邪修！+'+fmt(g)+' 灵力'}else{S.qi=Math.max(0,S.qi-80);return'战败，损失80灵力...'}}},
+    {t:'正面迎战 (成功率60%)',e:'1',act(){if(Math.random()<0.6){let g=randInt(80,200);S.qi+=g;S.exp+=Math.floor(getRealm().exp*0.15);return'击败邪修！灵力+'+fmt(g)+'，修炼进度+'+(Math.floor(getRealm().exp*0.15))}else{S.qi=Math.max(0,S.qi-80);return'战败，损失80灵力...'}}},
     {t:'绕路离开',e:'1',act(){S.qi=Math.max(0,S.qi-20);return'安全绕行，耽误修炼。(-20灵力)'}},
   ]},
   {icon:'💊',t:'天降丹雨',d:'天空下起灵力丹雨！',ch:[
@@ -656,7 +656,7 @@ const EVENTS = [
     {t:'在边缘接一些',e:'1',act(){let g=randInt(50,150);S.qi+=g;return'安全收集，+'+fmt(g)+' 灵力'}},
   ]},
   {icon:'📜',t:'古卷残篇',d:'地上有一卷残破的修炼功法...',ch:[
-    {t:'潜心解读 (消耗100灵力)',e:'S.qi>99',act(){S.qi-=100;if(Math.random()<0.5){S.exp+=Math.floor(getRealm().exp*0.4);return'悟出残卷真意！修为大增'}else{return'残卷太深奥，未能参透...'}}},
+    {t:'潜心解读 (消耗100灵力)',e:'S.qi>99',act(){S.qi-=100;if(Math.random()<0.5){S.exp+=Math.floor(getRealm().exp*0.4);return'悟出残卷真意！修炼进度 +'+fmt(Math.floor(getRealm().exp*0.4))}else{return'残卷太深奥，未能参透...'}}},
     {t:'收起来以后再看',e:'1',act(){S.qi+=50;return'残卷上附着的灵力被你吸收，+50灵力'}},
   ]},
   {icon:'🌿',t:'灵药园',d:'发现一处隐秘灵药园...',ch:[
@@ -665,12 +665,12 @@ const EVENTS = [
   ]},
   // 高阶事件 (元婴+)
   {icon:'🌩️',t:'天劫预兆',d:'天空雷云密布，天劫将至...',minR:22,ch:[
-    {t:'硬抗天劫 (消耗500灵力)',e:'S.qi>499',act(){S.qi-=500;if(Math.random()<0.5){let g=randInt(300,800);S.qi+=g;S.exp+=Math.floor(getRealm().exp*0.2);return'渡劫成功！修为大进+'+fmt(g)+'灵力'}else{S.qi=Math.max(0,S.qi-300);return'渡劫失败，身负重伤...'}}},
+    {t:'硬抗天劫 (消耗500灵力)',e:'S.qi>499',act(){S.qi-=500;if(Math.random()<0.5){let g=randInt(300,800);S.qi+=g;S.exp+=Math.floor(getRealm().exp*0.2);return'渡劫成功！灵力+'+fmt(g)+'，修炼进度 +'+fmt(Math.floor(getRealm().exp*0.2))}else{S.qi=Math.max(0,S.qi-300);return'渡劫失败，身负重伤...'}}},
     {t:'寻找避雷之地',e:'1',act(){return'躲过一劫，但错过了修炼机会。(无变化)'}},
   ]},
   {icon:'⚗️',t:'仙人遗府',d:'发现上古仙人洞府...',minR:24,ch:[
     {t:'探索洞府',e:'1',act(){if(Math.random()<0.4){triggerRareDrop();return'发现仙人遗宝！获得稀有装备'}else{S.qi+=randInt(200,600);return'获得一些丹药，+灵力'}}},
-    {t:'在门口参悟',e:'1',act(){S.exp+=Math.floor(getRealm().exp*0.25);return'参悟仙人遗留的道韵...修为大增'}},
+    {t:'在门口参悟',e:'1',act(){S.exp+=Math.floor(getRealm().exp*0.25);return'参悟仙人遗留的道韵...修炼进度 +'+fmt(Math.floor(getRealm().exp*0.25))}},
   ]},
 ];
 
@@ -1287,7 +1287,7 @@ function refreshHUD(){
   let r=getRealm();
   let pct=r.exp===Infinity?100:Math.min(100,Math.floor(S.exp/r.exp*100));
   document.getElementById('exp-bar-fill').style.width=pct+'%';
-  document.getElementById('exp-text').textContent=r.exp===Infinity?'已达仙道巅峰 · 可飞升转世':'修炼进度 '+fmt(S.exp)+' / '+fmt(r.exp);
+  document.getElementById('exp-text').textContent=r.exp===Infinity?'已达仙道巅峰 · 可飞升转世':'修炼进度 '+fmt(S.exp)+' / '+fmt(r.exp)+(S.realm<26?' (满了可突破)':'');
   let ct=getCultTarget(),cv=S.cultivation,cpct=Math.min(100,Math.floor(cv/ct*100));document.getElementById('cult-bar-fill').style.width=cpct+'%';document.getElementById('cult-bar-fill').style.background=cpct>=100?'linear-gradient(90deg,#4db88d,#7fd4b3)':'linear-gradient(90deg,#e0a800,#c9a84c)';document.getElementById('cult-text').textContent=cpct>=100?'\📖 '+getCultName()+' \✅ 已参悟 (突破率+5%)':'\📖 '+getCultName()+' '+fmt(cv)+'/'+fmt(ct);
 }
 function refreshSkillCD(){
@@ -1322,7 +1322,7 @@ function refreshPanel(){
       let locked=s.minR>S.realm;
       let cls=locked?'locked':'';
       h+=`<div class="skill-card${locked?' locked':''}">
-        <div class="skill-info"><h4>${s.n}${locked?' 🔒':''}</h4><p>${s.d} ${owned?'✅':''}${locked?' (境界不足)':''}</p></div>
+        <div class="skill-info"><h4>${s.n}${locked?' 🔒':''}</h4><p>${s.d} ${owned?'✅':''}${locked?' (需 '+REALMS[s.minR].n+')':''}</p></div>
         <button class="skill-btn${owned?' owned':''}" ${owned||locked?'disabled':''} onclick="buySkill('${s.id}')">${owned?'已习得':locked?'未解锁':'购买 '+fmt(s.c)+' 灵'}</button>
       </div>`;
     });
@@ -1385,7 +1385,7 @@ function refreshPanel(){
         let owned=S.shentong.includes(st.id);
         let locked=st.minR>S.realm;
         h+=`<div class="skill-card${locked?' locked':''}">
-          <div class="skill-info"><h4>${st.icon} ${st.n}</h4><p>${st.d} ${owned?'✅':''}${locked?' (境界不足)':''}</p></div>
+          <div class="skill-info"><h4>${st.icon} ${st.n}</h4><p>${st.d} ${owned?'✅':''}${locked?' (需 '+REALMS[s.minR].n+')':''}</p></div>
           <button class="skill-btn${owned?' owned':''}" ${owned||locked?'disabled':''} onclick="buyShentong('${st.id}')">${owned?'已领悟':locked?'未解锁':'领悟 '+fmt(st.c)+' 灵'}</button>
         </div>`;
       });
