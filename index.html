@@ -219,8 +219,15 @@ body{
 }
 #panels.open{transform:translateY(0)}
 #panels-close{
-  width:40px;height:4px;background:rgba(255,255,255,0.15);
-  border-radius:2px;margin:0 auto 12px;cursor:pointer;
+  width:50px;height:6px;background:rgba(255,255,255,0.25);
+  border-radius:3px;margin:0 auto 4px;cursor:pointer;
+  padding:14px 20px;background-clip:content-box;
+}
+#panels-close::after{
+  content:"下拉关闭";
+  display:block;text-align:center;
+  font-size:0.6em;color:var(--text-dim);
+  margin-top:4px;
 }
 
 /* 功法/装备卡 */
