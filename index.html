@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>仙途 · 放置修仙 v0.3</title>
+<title>仙途 · 放置修仙 v0.4</title>
 <style>
 /* ===== 全局 ===== */
 :root {
@@ -485,8 +485,12 @@ body{
 
 <!-- 面板 -->
 <div id="panels">
-  <div id="panels-close" onclick="closePanel()"></div>
-  <div id="panel-content"></div>
+  <div id="panels-header">
+    <div id="panels-close" onclick="closePanel()"></div>
+  </div>
+  <div id="panels-body">
+    <div id="panel-content"></div>
+  </div>
 </div>
 
 
@@ -495,7 +499,7 @@ body{
 
 <script>
 // ============================================================
-// 仙途 · 放置修仙 v0.3 — 大境界质变版
+// 仙途 · 放置修仙 v0.4 — 大境界质变版
 // 新增: 大境界解锁 · 灵根觉醒 · 装备强化 · 神通树 · 转世
 // ============================================================
 
@@ -525,12 +529,12 @@ const REALMS = [
   {n:'练气三层',   stage:2, exp:6000,   qi:1.05, atk:9,   hp:90,  bt:0.36, cost:1500},
   {n:'练气四层',   stage:2, exp:9000,   qi:1.5,   atk:12,  hp:120, bt:0.34, cost:2200},
   {n:'练气五层',   stage:2, exp:13500,   qi:2.1,   atk:16,  hp:160, bt:0.32, cost:3200},
-  {n:'练气六层',   stage:2, exp:19500,  qi:3.0,  atk:21,  hp:210, bt:0.22, cost:4500},
+  {n:'练气六层',   stage:2, exp:19500,  qi:3.0,  atk:21,  hp:210, bt:0.30, cost:4500},
   {n:'练气七层',   stage:2, exp:27000,  qi:4.2,  atk:28,  hp:280, bt:0.28, cost:6000},
-  {n:'练气八成',   stage:2, exp:37500,  qi:6.0,  atk:36,  hp:360, bt:0.40, cost:8000},
+  {n:'练气八成',   stage:2, exp:37500,  qi:6.0,  atk:36,  hp:360, bt:0.26, cost:8000},
   {n:'练气九层',   stage:2, exp:52500,  qi:8.4,  atk:46,  hp:460, bt:0.24, cost:11000},
   {n:'筑基初期',   stage:3, exp:82500,  qi:12.0,  atk:60,  hp:600, bt:0.30, cost:18000},
-  {n:'筑基中期',   stage:3, exp:127500,  qi:17.4,  atk:80,  hp:800, bt:0.05, cost:28000},
+  {n:'筑基中期',   stage:3, exp:127500,  qi:17.4,  atk:80,  hp:800, bt:0.25, cost:28000},
   {n:'筑基后期',   stage:3, exp:195000, qi:25.5,  atk:110, hp:1050,bt:0.20, cost:42000},
   {n:'金丹初期',   stage:4, exp:300000, qi:39.0, atk:150, hp:1400,bt:0.18, cost:65000},
   {n:'金丹中期',   stage:4, exp:480000, qi:60.0, atk:210, hp:1900,bt:0.15, cost:100000},
@@ -585,6 +589,9 @@ const SHENTONG = [
 
 // ===== 敌人 (按境界梯度增强) =====
 const ENEMIES = [
+  {n:'野狗',e:'🐕',hp:8,atk:1,qi:8,minR:0},
+  {n:'山猫',e:'🐱',hp:15,atk:2,qi:12,minR:3},
+  {n:'游魂',e:'👻',hp:20,atk:3,qi:18,minR:5},
   {n:'山野妖兔',e:'🐰',hp:25,atk:2,qi:15,minR:6},
   {n:'赤练蛇',e:'🐍',hp:40,atk:3,qi:25,minR:6},
   {n:'石魔',e:'🗿',hp:60,atk:4,qi:35,minR:8},
@@ -702,7 +709,7 @@ const DEF = ()=>({
   eventTimer:0,
   lastSave:Date.now(),
   skillCD:0,
-  // v0.3 新字段
+  // v0.4 新字段
   linggen:null,         // 灵根类型 key
   linggenChosen:false,  // 是否已选灵根
   prestige:0,           // 转世次数
@@ -958,7 +965,7 @@ function openBreakthrough(){
   if(!canBT()){showToast('修炼未满或灵力不足');return}
   let ov=document.getElementById('bt-overlay');
   document.getElementById('bt-realm-label').textContent=getRealm().n+' → '+getNext().n;
-  document.getElementById('bt-stage-label').textContent=getStage().name+' → '+(STAGES[getNext().stage]||{}).name||'';
+  document.getElementById('bt-stage-label').textContent=getStage().name+' → '+((STAGES[getNext().stage]||{}).name||'');
   let cost=Math.floor(getRealm().cost*(1-linggenBonus('bcost')));
   document.getElementById('bt-chance-label').textContent='成功率: '+Math.floor(btChance()*100)+'% | 消耗: '+fmt(cost)+' 灵力';
   document.getElementById('bt-result').textContent='';
@@ -998,7 +1005,7 @@ function triggerBreakthrough(){
     S.qi=Math.max(0,S.qi-cost);
     let oldStage=getRealm().stage;
     if(success){
-      S.realm++;S.exp=0;S.btCount++;S.cultivation=0;S.cultivation=0;
+      S.realm++;S.exp=0;S.btCount++;S.cultivation=0;
       let newStage=getRealm().stage;
       S.btHistory.unshift({r:getRealm().n,ok:true,ts:Date.now()});
       document.getElementById('bt-result').innerHTML='<span style="color:#4db88d">✨ 突破成功！</span><br><span style="font-size:0.7em;color:#c9a84c">晋升 '+getRealm().n+'</span>';
@@ -1048,12 +1055,12 @@ function doStageBreakthrough(newStage){
     },2000);
   }
   // 金丹境: 灵根觉醒
-  if(newStage===7&&!S.linggenChosen){
+  if(newStage===4&&!S.linggenChosen){
     msg='🌟 金丹已成！灵根觉醒...';
     setTimeout(()=>openLinggenOverlay(),1500);
   }
   // 元婴境: 神通解锁
-  if(newStage===7)msg='🔮 元婴凝聚！神通树开启...';
+  if(newStage===5)msg='🔮 元婴凝聚！神通树开启...';
   // 合体境: 领域压制
   if(newStage===7)msg='⚡ 合体大成！领域压制解锁，战斗节奏改变...';
   // 渡劫境: 天劫事件链
@@ -1238,8 +1245,8 @@ function updateVisuals(){
   body.style.width=si+'px';
   body.style.height=si+'px';
   // 按大境界换色
-  let bodyColors=['#8888aa','#c9a84c','#4db88d','#e0a800','#b04de0','#4d8de0','#e04343','#ff6b6b','#f5f5ff','#ffe082'];
-  let glowColors=['rgba(136,136,170,0.3)','rgba(201,168,76,0.4)','rgba(77,184,141,0.5)','rgba(224,168,0,0.55)','rgba(176,77,224,0.6)','rgba(77,141,224,0.65)','rgba(224,67,67,0.7)','rgba(255,107,107,0.75)','rgba(255,255,255,0.8)','rgba(255,224,130,0.9)'];
+  let bodyColors=['#8888aa','#c9a84c','#4db88d','#e0a800','#b04de0','#4d8de0','#e04343','#ff6b6b','#f5f5ff','#ffe082','#ffe082'];
+  let glowColors=['rgba(136,136,170,0.3)','rgba(201,168,76,0.4)','rgba(77,184,141,0.5)','rgba(224,168,0,0.55)','rgba(176,77,224,0.6)','rgba(77,141,224,0.65)','rgba(224,67,67,0.7)','rgba(255,107,107,0.75)','rgba(255,255,255,0.8)','rgba(255,224,130,0.9)','rgba(255,224,130,1.0)'];
   body.style.background='radial-gradient(circle at 40% 35%,'+bodyColors[st.id]+','+bodyColors[st.id]+'44)';
   body.style.boxShadow='0 0 40px '+glowColors[st.id]+', 0 0 80px '+glowColors[st.id];
 
@@ -1296,7 +1303,7 @@ function refreshHUD(){
   let pct=r.exp===Infinity?100:Math.min(100,Math.floor(S.exp/r.exp*100));
   document.getElementById('exp-bar-fill').style.width=pct+'%';
   document.getElementById('exp-text').textContent=r.exp===Infinity?'已达仙道巅峰 · 可飞升转世':'修炼进度 '+fmt(S.exp)+' / '+fmt(r.exp)+(S.realm<26?' (满了可突破)':'');
-  let ct=getCultTarget(),cv=S.cultivation,cpct=Math.min(100,Math.floor(cv/ct*100));document.getElementById('cult-bar-fill').style.width=cpct+'%';document.getElementById('cult-bar-fill').style.background=cpct>=100?'linear-gradient(90deg,#4db88d,#7fd4b3)':'linear-gradient(90deg,#e0a800,#c9a84c)';document.getElementById('cult-text').textContent=cpct>=100?'\📖 '+getCultName()+' \✅ 已参悟 (突破率+5%)':'\📖 '+getCultName()+' '+fmt(cv)+'/'+fmt(ct);
+  let ct=getCultTarget(),cv=S.cultivation,cpct=Math.min(100,Math.floor(cv/ct*100));document.getElementById('cult-bar-fill').style.width=cpct+'%';document.getElementById('cult-bar-fill').style.background=cpct>=100?'linear-gradient(90deg,#4db88d,#7fd4b3)':'linear-gradient(90deg,#e0a800,#c9a84c)';document.getElementById('cult-text').textContent=cpct>=100?'\📖 '+getCultName()+' \✅ 已参悟 (突破率+10%)':'\📖 '+getCultName()+' '+fmt(cv)+'/'+fmt(ct);
 }
 function refreshSkillCD(){
   let btn=document.getElementById('skill-btn');
@@ -1376,9 +1383,9 @@ function refreshPanel(){
       <div style="color:#5c5c70;font-size:0.8em;margin-bottom:4px">大境界: ${getStage().name} → ${stName}</div>
       <div style="color:#5c5c70;font-size:0.8em;margin-bottom:4px">功法: ${getCultName()} ${isCultComplete()?'<span style="color:#4db88d">✅已参悟</span>':'<span style="color:#e0a800">参悟中...</span>'}</div>
       <div style="width:80%;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;margin:0 auto 8px"><div style="height:100%;background:${isCultComplete()?'#4db88d':'#e0a800'};border-radius:3px;width:${Math.min(100,Math.floor(S.cultivation/getCultTarget()*100))}%"></div></div>
-      <div style="color:#5c5c70;font-size:0.7em;margin-bottom:4px">修炼进度 ${fmt(S.cultivation)} / ${fmt(getCultTarget())} ${isCultComplete()?'\✅ 突破率+5%':''}</div>
+      <div style="color:#5c5c70;font-size:0.7em;margin-bottom:4px">修炼进度 ${fmt(S.cultivation)} / ${fmt(getCultTarget())} ${isCultComplete()?'\✅ 突破率+10%':''}</div>
       <button style="padding:6px 18px;border-radius:12px;border:1px solid #e0a800;background:transparent;color:#e0a800;font-size:0.7em;cursor:pointer;margin-bottom:8px" onclick="accelerateCultivation()" ${isCultComplete()?'disabled':''}>📖 加速参悟</button>
-      <div style="color:#5c5c70;font-size:0.8em;margin-bottom:4px">成功率: ${ch}%${cultBonus()>0?' <span style="color:#4db88d">(+5%功法加成)</span>':''} | 消耗: ${fmt(cost)} 灵力</div>
+      <div style="color:#5c5c70;font-size:0.8em;margin-bottom:4px">成功率: ${ch}%${cultBonus()>0?' <span style="color:#4db88d">(+10%功法加成)</span>':''} | 消耗: ${fmt(cost)} 灵力</div>
       <div style="color:#5c5c70;font-size:0.75em;margin-bottom:12px">${canBT()?'<span style="color:#4db88d">可以突破！</span>':'修炼未满或灵力不足'}</div>
       <button style="padding:10px 32px;border-radius:20px;border:2px solid #c9a84c;background:rgba(201,168,76,0.15);color:#f5d98e;font-family:STKaiti,KaiTi,serif;font-size:1em;cursor:pointer" ${canBT()?'':'disabled'} onclick="openBreakthrough()">冲击境界</button></div>`;
     }else{
@@ -1530,7 +1537,7 @@ function init(){
     updateUnlockBar();
     refreshAll();
     for(let i=0;i<10;i++)setTimeout(()=>spawnQiParticles(3),i*200);
-    console.log('🧘 仙途 v0.3 — 大境界质变版 已就绪 |',getRealm().n,'|',fmt(S.qi),'灵');
+    console.log('🧘 仙途 v0.4 — 大境界质变版 已就绪 |',getRealm().n,'|',fmt(S.qi),'灵');
     console.log(' 新增: 大境界解锁 · 灵根觉醒 · 装备强化 · 神通树 · 转世系统');
     console.log(' 挂机建议: 每突破一个大境界，回来看看有什么新解锁');
   }catch(e){
