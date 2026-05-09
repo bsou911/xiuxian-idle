@@ -367,13 +367,30 @@ body{
 #lg-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:340px;width:100%;margin-top:16px}
 
 /* ===== 响应式 ===== */
+/* 小屏适配 */
 @media(max-width:380px){
   #char-body{width:45px!important;height:45px!important}
   #char-robe{width:55px!important}
   #enemy-sprite{font-size:2.5em}
+  #skill-btn{bottom:100px!important;right:8px!important;width:44px!important;height:44px!important;font-size:1.2em!important}
 }
+/* 平板 */
 @media(min-width:768px){
   #battle-zone{max-width:500px;margin:0 auto}
+  #game{max-width:600px;margin:0 auto;border-left:1px solid rgba(255,255,255,0.04);border-right:1px solid rgba(255,255,255,0.04)}
+  #panels{max-width:600px;left:50%;transform:translate(-50%,105%)}
+  #panels.open{transform:translate(-50%,0)}
+  #skill-btn{bottom:160px;right:calc(50% - 280px)}
+  #tabs{max-width:600px;margin:0 auto}
+}
+/* 桌面 */
+@media(min-width:1024px){
+  #game{max-width:650px}
+  #battle-zone{max-width:550px}
+  #char-body{width:65px!important;height:65px!important}
+  #char-robe{width:85px!important}
+  #enemy-sprite{font-size:4em}
+  #skill-btn{bottom:180px;right:calc(50% - 300px);width:64px;height:64px;font-size:1.8em}
 }
 </style>
 </head>
@@ -467,7 +484,7 @@ body{
 
 
 <!-- 技能按钮 — 在body层，高于所有面板 -->
-<div id="skill-btn" onclick="useSkill()">⚡</div>
+<div id="skill-btn" onclick="useSkill()" title="⚡ 雷击术 — 3倍攻击力暴击，CD 5秒">⚡</div>
 
 <script>
 // ============================================================
@@ -811,14 +828,32 @@ function spawnCombatParticles(x,y,count){
 // ===== 敌人系统 =====
 function spawnEnemy(){
   if(S.enemy)return;
+  // 按当前境界梯度选敌人：偏向同阶，小概率越级
   let pool=ENEMIES.filter(e=>e.minR<=S.realm);
-  let t=pool[Math.min(pool.length-1,Math.floor(Math.random()*Math.min(pool.length,S.realm+3)))];
-  let hpMult=1+S.realm*0.05;
-  S.enemy={...t,hp:Math.floor(t.hp*hpMult),maxHp:Math.floor(t.hp*hpMult)};
+  // 按境界权重：80%概率选接近当前境界的敌人
+  let tier=Math.floor(S.realm/3); // 每3层一个梯度
+  let weighted=[];
+  for(let e of pool){
+    let eTier=Math.floor(e.minR/3);
+    let w=eTier<=tier?3:1; // 同梯度或更低权重高
+    for(let i=0;i<w;i++)weighted.push(e);
+  }
+  let t=weighted[Math.floor(Math.random()*weighted.length)];
+  // 按境界缩放属性
+  let scale=1+S.realm*0.08;
+  let rewardScale=1+S.realm*0.12;
+  S.enemy={
+    ...t,
+    hp:Math.floor(t.hp*scale),
+    maxHp:Math.floor(t.hp*scale),
+    atk:Math.floor(t.atk*scale),
+    qi:Math.floor(t.qi*rewardScale),
+    realm:S.realm
+  };
   S.enemyTimer=0;
   let ez=document.getElementById('enemy-zone');
   document.getElementById('enemy-sprite').textContent=t.e;
-  document.getElementById('enemy-name').textContent=t.n;
+  document.getElementById('enemy-name').textContent=t.n+' Lv.'+(S.realm+1);
   document.getElementById('enemy-hp-fill').style.width='100%';
   ez.classList.add('active');
 }
@@ -1149,7 +1184,7 @@ function tick(){
   S.eventTimer+=0.1;
   if(S.eventTimer>30+Math.random()*40&&!currentEvent){S.eventTimer=0;triggerEvent()}
   // 粒子
-  if(Math.random()<0.4)spawnQiParticles(2);
+  if(Math.random()<0.5)spawnQiParticles(1+Math.floor(getRealm().stage/2));
   // UI更新
   refreshHUD();
   // 自动保存
@@ -1167,16 +1202,16 @@ function updateVisuals(){
   let prestigeEl=document.getElementById('prestige-indicator');
 
   // 角色外观 — 大境界越大，角色越大
-  let sizes=[40,45,50,55,60,65,70,75,80,85];
-  let auraSizes=[100,105,110,115,120,125,130,135,140,145];
+  let sizes=[40,48,56,65,75,88,102,118,135,155];
+  let auraSizes=[100,110,125,140,160,185,215,250,290,340];
   let si=sizes[Math.min(st.id,9)];
   let ai=auraSizes[Math.min(st.id,9)];
 
   body.style.width=si+'px';
   body.style.height=si+'px';
   // 按大境界换色
-  let bodyColors=['#8888aa','#c9a84c','#4db88d','#e0a800','#b04de0','#4d8de0','#e04343','#ff6b6b','#f0f0f0','#f5d98e'];
-  let glowColors=['rgba(120,120,120,0.3)','rgba(201,168,76,0.3)','rgba(77,184,141,0.35)','rgba(224,168,0,0.4)','rgba(176,77,224,0.45)','rgba(77,141,224,0.5)','rgba(224,67,67,0.55)','rgba(255,107,107,0.6)','rgba(255,255,255,0.65)','rgba(245,217,142,0.7)'];
+  let bodyColors=['#8888aa','#c9a84c','#4db88d','#e0a800','#b04de0','#4d8de0','#e04343','#ff6b6b','#f5f5ff','#ffe082'];
+  let glowColors=['rgba(136,136,170,0.3)','rgba(201,168,76,0.4)','rgba(77,184,141,0.5)','rgba(224,168,0,0.55)','rgba(176,77,224,0.6)','rgba(77,141,224,0.65)','rgba(224,67,67,0.7)','rgba(255,107,107,0.75)','rgba(255,255,255,0.8)','rgba(255,224,130,0.9)'];
   body.style.background='radial-gradient(circle at 40% 35%,'+bodyColors[st.id]+','+bodyColors[st.id]+'44)';
   body.style.boxShadow='0 0 40px '+glowColors[st.id]+', 0 0 80px '+glowColors[st.id];
 
