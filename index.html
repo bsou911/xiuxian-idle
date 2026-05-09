@@ -711,6 +711,7 @@ const DEF = ()=>({
   stageUnlocked:0,      // 已解锁到第几个大境界
   daoName:'',            // 道号（凡人后取名）
   cultivation:0,        // 当前境界功法修炼进度
+  _migrated:true,        // v0.4标记，新存档跳过迁移
 });
 
 let S = loadState();
@@ -725,8 +726,8 @@ function loadState(){
     let r=JSON.parse(raw);
     let merged={...DEF(),...r};
     if(typeof merged.realm!=='number'||typeof merged.qi!=='number')throw new Error('存档损坏');
-    // v0.4 迁移: 旧存档境界+3 (新增三蒙昧阶段)
-    if(!merged._migrated&&merged.realm<3&&merged.prestige===0){
+    // v0.4 迁移: 旧存档(无_migrated标记)境界+3
+    if(merged._migrated!==true&&merged.realm<3&&merged.prestige===0&&!merged.daoName){
       merged.realm+=3;
       merged._migrated=true;
       console.log('存档迁移: realm',merged.realm-3,'→',merged.realm);
