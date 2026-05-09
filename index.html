@@ -13,7 +13,7 @@
   --jade: #4db88d;
   --danger: #e04343;
   --text: #b8b8c8;
-  --text-dim: #5c5c70;
+  --text-dim: #8888a0;
   --rarity-common: #9d9d9d;
   --rarity-uncommon: #4db88d;
   --rarity-rare: #4d8de0;
@@ -491,7 +491,7 @@ const STAGES = [
 
 // ===== 境界数据 =====
 const REALMS = [
-  {n:'凡人',       stage:0, exp:80,    qi:1,   atk:3,   hp:30,  bt:0,    cost:0},
+  {n:'凡人',       stage:0, exp:80,    qi:1,   atk:3,   hp:30,  bt:0.45, cost:0},
   {n:'练气一层',   stage:1, exp:150,   qi:1.8, atk:5,   hp:50,  bt:0.75, cost:60},
   {n:'练气二层',   stage:1, exp:250,   qi:2.5, atk:7,   hp:70,  bt:0.70, cost:100},
   {n:'练气三层',   stage:1, exp:400,   qi:3.5, atk:9,   hp:90,  bt:0.65, cost:150},
@@ -535,11 +535,11 @@ const SKILLS = [
   {id:'s5',n:'太虚真气诀',d:'灵力获取 +120%',c:6000,e:{t:'qi',v:1.2},minR:10},
   {id:'s6',n:'鸿蒙紫气功',d:'灵力获取 +200%',c:20000,e:{t:'qi',v:2.0},minR:16},
   {id:'s7',n:'混沌吞天诀',d:'灵力获取 +350%',c:100000,e:{t:'qi',v:3.5},minR:22},
-  {id:'a1',n:'破境丹方残卷',d:'突破率 +5%',c:300,e:{t:'bt',v:0.05},minR:2},
+  {id:'a1',n:'破境丹方残卷',d:'突破率 +5%',c:300,e:{t:'bt',v:0.05},minR:0},
   {id:'a2',n:'破境丹方全本',d:'突破率 +10%',c:1500,e:{t:'bt',v:0.10},minR:6},
   {id:'a3',n:'九转金丹',d:'突破率 +15%',c:5000,e:{t:'bt',v:0.15},minR:12},
   {id:'a4',n:'涅槃重生丹',d:'突破率 +20%',c:30000,e:{t:'bt',v:0.20},minR:18},
-  {id:'c1',n:'聚灵手诀',d:'点击伤害 +40%',c:100,e:{t:'click',v:0.4},minR:1},
+  {id:'c1',n:'聚灵手诀',d:'点击伤害 +40%',c:100,e:{t:'click',v:0.4},minR:0},
   {id:'c2',n:'天罡指法',d:'点击伤害 +80%',c:800,e:{t:'click',v:0.8},minR:5},
   {id:'c3',n:'大荒囚天指',d:'点击伤害 +150%',c:5000,e:{t:'click',v:1.5},minR:12},
   {id:'c4',n:'灭世一指',d:'点击伤害 +300%',c:50000,e:{t:'click',v:3.0},minR:20},
@@ -768,7 +768,7 @@ function canBT(){
 function getCultTarget(){return Math.floor(getRealm().exp*0.8)}
 function getCultName(){return getRealm().n+'真解'}
 function isCultComplete(){return S.cultivation>=getCultTarget()}
-function cultBonus(){return isCultComplete()?0.05:0}
+function cultBonus(){return isCultComplete()?0.10:0}
 function accelerateCultivation(){
   let cost=Math.floor(getCultTarget()*0.05);
   if(S.qi<cost){showToast('灵力不足，需要 '+fmt(cost)+' 灵力');return}
@@ -1172,7 +1172,7 @@ function updateVisuals(){
   body.style.width=si+'px';
   body.style.height=si+'px';
   // 按大境界换色
-  let bodyColors=['#777','#c9a84c','#4db88d','#e0a800','#b04de0','#4d8de0','#e04343','#ff6b6b','#f0f0f0','#f5d98e'];
+  let bodyColors=['#8888aa','#c9a84c','#4db88d','#e0a800','#b04de0','#4d8de0','#e04343','#ff6b6b','#f0f0f0','#f5d98e'];
   let glowColors=['rgba(120,120,120,0.3)','rgba(201,168,76,0.3)','rgba(77,184,141,0.35)','rgba(224,168,0,0.4)','rgba(176,77,224,0.45)','rgba(77,141,224,0.5)','rgba(224,67,67,0.55)','rgba(255,107,107,0.6)','rgba(255,255,255,0.65)','rgba(245,217,142,0.7)'];
   body.style.background='radial-gradient(circle at 40% 35%,'+bodyColors[st.id]+','+bodyColors[st.id]+'44)';
   body.style.boxShadow='0 0 40px '+glowColors[st.id]+', 0 0 80px '+glowColors[st.id];
@@ -1206,6 +1206,10 @@ function updateUnlockBar(){
   let html='';
   if(st.unlock){
     html+=`<span class="new">🎯 ${st.unlock}</span>`;
+  }
+  // 凡人阶段提示
+  if(S.realm===0&&!isCultComplete()){
+    html+='<span style="color:#8888a0;font-size:0.7em;margin-left:4px">💡 先买功法→点球修炼→攒灵力→功法修炼满→突破</span>';
   }
   // 检查是否在真仙
   if(S.realm>=23&&S.prestige===0){
