@@ -1417,14 +1417,39 @@ function calcOffline(){
 // ===== 初始化 =====
 function resetGame(){
   if(!confirm('确定要重置所有进度？此操作不可撤销！'))return;
+  // 停掉所有定时器
   clearInterval(gameLoop);
-  localStorage.removeItem('xx2_save');
-  location.reload();
+  // 清空存档
+  try{ localStorage.removeItem('xx2_save'); }catch(e){}
+  // 重置状态
+  S = DEF();
+  // 更新所有UI
+  closePanel();
+  updateVisuals();
+  updateUnlockBar();
+  refreshAll();
+  // 重启循环
+  gameLoop = setInterval(tick, 100);
+  showToast('🔄 游戏已重置');
 }
 window.resetGame=resetGame;
 
 function init(){
   try{
+    // 预检存档有效性
+    let raw = localStorage.getItem('xx2_save');
+    if(raw){
+      try{
+        let test = JSON.parse(raw);
+        if(typeof test.realm !== 'number' || typeof test.qi !== 'number'){
+          throw new Error('存档结构损坏');
+        }
+      }catch(e){
+        console.warn('存档损坏，自动清除:', e.message);
+        localStorage.removeItem('xx2_save');
+        S = DEF();
+      }
+    }
     calcOffline();
     save();
     gameLoop=setInterval(tick,100);
@@ -1439,7 +1464,7 @@ function init(){
     console.log(' 挂机建议: 每突破一个大境界，回来看看有什么新解锁');
   }catch(e){
     console.error('游戏初始化失败:',e);
-    document.body.innerHTML='<div style="color:#c9a84c;text-align:center;padding:40px;font-family:sans-serif"><h2>初始化失败</h2><p>'+e.message+'</p><button onclick="localStorage.removeItem(\'xx2_save\');location.reload()" style="margin-top:20px;padding:10px 30px">清除存档重试</button></div>';
+    document.body.innerHTML='<div style="color:#c9a84c;text-align:center;padding:40px;font-family:sans-serif"><h2>初始化失败</h2><p>'+e.message+'</p><button onclick="try{localStorage.clear()}catch(e){};location.reload()" style="margin-top:20px;padding:10px 30px">清除所有存档重试</button></div>';
   }
 }
 init();
