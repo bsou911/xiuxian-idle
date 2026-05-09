@@ -1385,7 +1385,7 @@ function refreshPanel(){
         let owned=S.shentong.includes(st.id);
         let locked=st.minR>S.realm;
         h+=`<div class="skill-card${locked?' locked':''}">
-          <div class="skill-info"><h4>${st.icon} ${st.n}</h4><p>${st.d} ${owned?'✅':''}${locked?' (需 '+REALMS[s.minR].n+')':''}</p></div>
+          <div class="skill-info"><h4>${st.icon} ${st.n}</h4><p>${st.d} ${owned?'✅':''}${locked?' (需 '+REALMS[st.minR].n+')':''}</p></div>
           <button class="skill-btn${owned?' owned':''}" ${owned||locked?'disabled':''} onclick="buyShentong('${st.id}')">${owned?'已领悟':locked?'未解锁':'领悟 '+fmt(st.c)+' 灵'}</button>
         </div>`;
       });
