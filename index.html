@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>仙途 · 放置修仙 v0.5</title>
+<title>仙途 · 放置修仙 v0.6</title>
 <style>
 /* ===== 全局 ===== */
 :root {
@@ -148,8 +148,19 @@ body{
 #enemy-name{font-family:'STKaiti','KaiTi',serif;color:var(--danger);font-size:1.1em;margin-bottom:4px}
 #enemy-hp-bar{width:140px;height:8px;background:rgba(255,255,255,0.1);border-radius:4px;overflow:hidden;margin:4px auto}
 #enemy-hp-fill{height:100%;background:linear-gradient(90deg,#e04343,#ff6b6b);transition:width 0.15s;border-radius:4px}
+#player-hp-bar{width:160px;height:10px;background:rgba(255,255,255,0.1);border-radius:5px;overflow:hidden;margin:6px auto;border:1px solid rgba(77,184,141,0.3)}
+#player-hp-fill{height:100%;background:linear-gradient(90deg,#4db88d,#7fd4b3);transition:width 0.3s;border-radius:5px}
+#player-hp-text{font-size:0.55em;color:var(--text-dim);text-align:center;margin-bottom:8px}
+#diff-selector{display:flex;justify-content:center;gap:8px;margin:4px 0}
+.diff-btn{padding:4px 12px;border-radius:12px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:var(--text-dim);font-size:0.65em;cursor:pointer;transition:all 0.2s}
+.diff-btn.active{border-color:var(--gold);color:var(--gold-bright);background:rgba(201,168,76,0.1)}
+.diff-btn.hell{border-color:#e04343}.diff-btn.hell.active{color:#ff6b6b;background:rgba(224,67,67,0.15)}
 #enemy-sprite{font-size:3em;animation:enemyFloat 2s ease-in-out infinite}
 @keyframes enemyFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+#goal-tracker{text-align:center;padding:6px 12px;margin:6px 0;font-size:0.65em;color:var(--text-dim);line-height:1.6}
+#goal-tracker .goal-small{color:#8888a0}
+#goal-tracker .goal-med{color:#c9a84c}
+#goal-tracker .goal-big{color:#e0a800;font-size:0.75em}
 
 /* 技能按钮 — 固定于视口，高于所有面板 */
 #skill-btn{
@@ -218,11 +229,10 @@ body{
   padding:16px 16px max(16px,env(safe-area-inset-bottom));
 }
 #panels.open{transform:translateY(0)}
-#panels-close{
-  width:50px;height:5px;background:rgba(255,255,255,0.35);
-  border-radius:3px;margin:20px auto 8px;cursor:pointer;
-  padding:18px 20px;background-clip:content-box;
-}
+#panels-close{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:12px 0;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.06);margin-bottom:8px;color:rgba(255,255,255,0.35);font-size:0.75em;transition:color 0.2s}
+#panels-close:hover{color:rgba(255,255,255,0.7)}
+#panels-close::before{content:"BC";font-size:0.9em}
+#panels-close::after{content:"点击或下滑收起"}
 
 
 /* 功法/装备卡 */
@@ -415,6 +425,14 @@ body{
   #enemy-sprite{font-size:4em}
   #skill-btn{bottom:180px;right:calc(50% - 300px);width:64px;height:64px;font-size:1.8em}
 }
+#milestone-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:200;display:none;flex-direction:column;align-items:center;justify-content:center;animation:fadeIn 0.3s}
+#milestone-overlay.active{display:flex}
+#milestone-overlay .ms-icon{font-size:5em;animation:msBounce 0.6s ease-out}
+#milestone-overlay .ms-title{font-family:STKaiti,KaiTi,serif;font-size:1.8em;color:var(--gold-bright);margin:12px 0}
+#milestone-overlay .ms-desc{color:var(--text);font-size:0.9em;margin-bottom:20px}
+#milestone-overlay .ms-btn{background:linear-gradient(135deg,var(--gold),#e0a800);color:#000;border:none;padding:10px 40px;border-radius:20px;font-size:1em;cursor:pointer}
+@keyframes msBounce{0%{transform:scale(0);opacity:0}60%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
 </style>
 </head>
 <body>
@@ -472,6 +490,13 @@ body{
       <div id="char-body"></div>
       <div id="char-robe"></div>
     </div>
+    <div id="player-hp-bar"><div id="player-hp-fill" style="width:100%"></div></div>
+    <div id="player-hp-text"></div>
+    <div id="diff-selector">
+      <div class="diff-btn active" onclick="setDifficulty(0)">普通</div>
+      <div class="diff-btn" onclick="setDifficulty(1)">困难 x3</div>
+      <div class="diff-btn hell" onclick="setDifficulty(2)">地狱 x10</div>
+    </div>
     <div id="enemy-zone">
       <div id="enemy-sprite">👹</div>
       <div id="enemy-name"></div>
@@ -484,6 +509,7 @@ body{
   <div id="exp-text">修炼进度 0 / 100</div>
   <div id="cult-text" style="text-align:center;font-size:0.6em;color:var(--text-dim);margin-bottom:4px"></div>
 
+  <div id="goal-tracker"></div>
   <!-- 标签栏 -->
   <div id="tabs">
     <div class="tab active" onclick="openPanel('skills')">功法</div>
@@ -586,6 +612,10 @@ const SKILLS = [
   {id:'c2',n:'天罡指法',d:'点击伤害 +80%',c:4000,e:{t:'click',v:0.8},minR:8},
   {id:'c3',n:'大荒囚天指',d:'点击伤害 +150%',c:25000,e:{t:'click',v:1.5},minR:15},
   {id:'c4',n:'灭世一指',d:'点击伤害 +300%',c:250000,e:{t:'click',v:3.0},minR:23},
+  {id:'c5',n:'吸星大法',d:'杀敌额外+25%灵力',c:350000,e:{t:'killQi',v:0.25},minR:15},
+  {id:'c6',n:'九转金丹',d:'修炼速度+35%',c:500000,e:{t:'qi',v:0.35},minR:18},
+  {id:'c7',n:'天人合一',d:'突破率+8%',c:700000,e:{t:'bt',v:0.08},minR:21},
+  {id:'c8',n:'混元无极',d:'全属性+20%',c:1200000,e:{t:'all',v:0.20},minR:24},
 ];
 
 // ===== 神通 (元婴解锁) =====
@@ -649,6 +679,16 @@ const EQUIP_POOL = {
 };
 
 const RARITY_WEIGHTS = {common:52,uncommon:24,rare:13,epic:7,legendary:3,mythic:1};
+const ARTIFACT_POOL = [
+  {n:"聚灵珠",icon:"❱",r:"common",e:{t:"qi",v:0.10},minR:13},
+  {n:"噬血珠",icon:"◉",r:"uncommon",e:{t:"lifesteal",v:0.03},minR:13},
+  {n:"定风珠",icon:"◎",r:"uncommon",e:{t:"aspd",v:0.15},minR:14},
+  {n:"雷灵珠",icon:"⚡",r:"rare",e:{t:"critDmg",v:0.5},minR:15},
+  {n:"避劫珠",icon:"✦",r:"rare",e:{t:"bt",v:0.05},minR:16},
+  {n:"混元珠",icon:"☆",r:"epic",e:{t:"all",v:0.08},minR:17},
+  {n:"混沌珠",icon:"✶",r:"legendary",e:{t:"all",v:0.15},minR:19},
+  {n:"鸿蒙珠",icon:"✳",r:"mythic",e:{t:"all",v:0.25},minR:22},
+];
 const RARITY_NAMES = {common:'凡品',uncommon:'灵品',rare:'仙品',epic:'圣品',legendary:'混沌',mythic:'鸿蒙'};
 
 // ===== 装备强化 =====
@@ -700,13 +740,13 @@ const EVENTS = [
 ];
 
 function triggerRareDrop(){
-  let slot=['weapon','armor','accessory'][randInt(0,2)];
-  let pool=EQUIP_POOL[slot];
+  let slotOpts=S.realm>=13?['weapon','armor','accessory','artifact']:['weapon','armor','accessory'];let slot=slotOpts[randInt(0,slotOpts.length-1)];
+  let pool=slot==='artifact'?ARTIFACT_POOL:EQUIP_POOL[slot];
   let r=Math.random()<0.3?'legendary':'epic';
   let candidates=pool.filter(x=>x.r===r);
   if(candidates.length===0)candidates=pool.filter(x=>x.r==='rare');
   let item=candidates[randInt(0,candidates.length-1)];
-  S.equip[slot]={n:item.n,r:item.r,a:item.a||0,d:item.d||0,q:item.q||0,enhance:0};
+  S.equip[slot]={n:item.n,r:item.r,a:item.a||0,d:item.d||0,q:item.q||0,e:item.e||null,enhance:0};
   showLootToast({n:item.n,r:item.r,a:item.a,d:item.d,q:item.q},slot);
 }
 
@@ -714,7 +754,7 @@ function triggerRareDrop(){
 const DEF = ()=>({
   qi:0, totalQi:0, realm:0, exp:0,
   skills:[], shentong:[],
-  equip:{weapon:null,armor:null,accessory:null},
+  equip:{weapon:null,armor:null,accessory:null,artifact:null},
   btCount:0, btHistory:[],
   enemy:null, enemyTimer:0,
   eventTimer:0,
@@ -732,7 +772,10 @@ const DEF = ()=>({
   daoName:'',            // 道号（凡人后取名）
   failStreak:0,          // 突破连续失败次数保底
   cultivation:0,        // 当前境界功法修炼进度
-  _migrated:true,        // v0.5标记，新存档跳过迁移
+  _migrated:true,
+    playerHp:0, maxHp:0,
+  difficulty:0,
+    ach:{totalKills:0,eliteKills:0,rareKills:0,totalQi:0,totalFails:0,btSuccess:0},        // v0.5标记，新存档跳过迁移
 });
 
 let S = loadState();
@@ -754,9 +797,11 @@ function loadState(){
       console.log('存档迁移: realm',merged.realm-3,'→',merged.realm);
     }
     // 向后兼容: 如果旧存档装备没有enhance字段
-    for(let k of ['weapon','armor','accessory']){
+    for(let k of ['weapon','armor','accessory','artifact']){
       if(merged.equip[k]&&typeof merged.equip[k].enhance!=='number')merged.equip[k].enhance=0;
     }
+    if(typeof merged.playerHp!=='number'||merged.playerHp<=0){merged.maxHp=REALMS[merged.realm].hp;merged.playerHp=merged.maxHp}
+    if(!merged.ach){merged.ach={totalKills:0,eliteKills:0,rareKills:0,totalQi:0,totalFails:0,btSuccess:0}}
     return merged;
   }catch(e){
     console.warn('存档读取失败:',e.message);
@@ -780,11 +825,12 @@ function linggenBonus(type){
 }
 
 // ===== 核心计算 =====
+function artifactEffect(type){if(!S.equip.artifact||!S.equip.artifact.e)return 0;var ae=S.equip.artifact.e;if(ae.t===type)return ae.v;if(ae.t==="all")return ae.v;return 0}
 function qiMult(){
   let m=1;
   for(let id of S.skills){let s=SKILLS.find(x=>x.id===id);if(s&&s.e.t==='qi')m+=s.e.v}
   for(let id of S.shentong){let st=SHENTONG.find(x=>x.id===id);if(st&&st.e.t==='qi')m+=st.e.v}
-  m+=linggenBonus('qi');
+  m+=linggenBonus('qi');m+=artifactEffect('qi');
   m+=S.prestigeBonus;
   m*=(1+linggenBonus('speed'));
   return m;
@@ -795,26 +841,30 @@ function clickMult(){
   return m;
 }
 function btBonus(){
-  let b=0;
+  let b=artifactEffect('bt');
   for(let id of S.skills){let s=SKILLS.find(x=>x.id===id);if(s&&s.e.t==='bt')b+=s.e.v}
   b+=linggenBonus('bt');
   return b;
 }
 function getAtk(){
   let a=getRealm().atk;
-  if(S.equip.weapon)a+=Math.floor((S.equip.weapon.a||0)*(1+S.equip.weapon.enhance*0.15));
+  if(S.equip.weapon)a+=Math.floor((S.equip.weapon.a||0)*(1+S.equip.weapon.enhance*0.15)*(1+S.realm*0.02));
   if(S.equip.armor)a+=Math.floor(((S.equip.armor.d||0)*(1+S.equip.armor.enhance*0.1))*0.3);
   a=Math.floor(a*(1+linggenBonus('atk')));
   if(S.shentong.includes('st2'))a=Math.floor(a*1.25);
+  if(S.equip.artifact&&S.equip.artifact.e){var ae=S.equip.artifact.e;if(ae.t==='all')a=Math.floor(a*(1+ae.v));if(ae.t==='qi')a=Math.floor(a*(1+ae.v*0.5));}
   return a;
 }
+function getMaxHp(){var h=getRealm().hp;if(S.shentong.includes("st5"))h=Math.floor(h*1.4);return h}
+function getDefReduction(){let d=getDef(),a=S.enemy?S.enemy.atk:1;return Math.min(0.7,d/(d+a))}
 function getDef(){
   let d=0;
   if(S.equip.armor)d+=Math.floor((S.equip.armor.d||0)*(1+S.equip.armor.enhance*0.1));
   d=Math.floor(d*(1+linggenBonus('def')));
+  if(S.equip.artifact&&S.equip.artifact.e&&S.equip.artifact.e.t==='all')d=Math.floor(d*(1+S.equip.artifact.e.v));
   return d;
 }
-function getCritChance(){return linggenBonus('crit')}
+function getCritChance(){var c=linggenBonus('crit');if(S.shentong.includes('st6'))c+=0.15;return c}
 function getSkillCD(){return 5*(1-linggenBonus('cd'))}
 function canBT(){
   let r=getRealm(),n=getNext();
@@ -882,21 +932,29 @@ function spawnEnemy(){
     for(let i=0;i<w;i++)weighted.push(e);
   }
   let t=weighted[Math.floor(Math.random()*weighted.length)];
+  let roll=Math.random();let enemyTier='normal';
+  if(roll<0.02){enemyTier='rare'}
+  else if(roll<0.12){enemyTier='elite'}
   // 按境界缩放属性
-  let scale=1+S.realm*0.08;
-  let rewardScale=1+S.realm*0.12;
+  let scale=1+S.realm*0.06;
+  let rewardScale=1+S.realm*0.30;
+  let diffHp=[1,3,10][S.difficulty]||1;let diffQi=[1,3,10][S.difficulty]||1;let diffAtk=[1,2,4][S.difficulty]||1;
+  let hpMult=(enemyTier==='rare'?10:enemyTier==='elite'?3:1)*diffHp;
+  let qiMult=(enemyTier==='rare'?10:enemyTier==='elite'?5:1)*diffQi;
+  let namePrefix=enemyTier==='rare'?'⭐稀有·':enemyTier==='elite'?'⚡精英·':'';
   S.enemy={
     ...t,
-    hp:Math.floor(t.hp*scale),
+    tier:enemyTier,
+    hp:Math.floor(t.hp*scale*hpMult),
     maxHp:Math.floor(t.hp*scale),
     atk:Math.floor(t.atk*scale),
-    qi:Math.floor(t.qi*rewardScale),
+    qi:Math.floor(t.qi*rewardScale*qiMult),
     realm:S.realm
   };
   S.enemyTimer=0;
   let ez=document.getElementById('enemy-zone');
   document.getElementById('enemy-sprite').textContent=t.e;
-  document.getElementById('enemy-name').textContent=t.n+' Lv.'+(S.realm+1);
+  document.getElementById('enemy-name').textContent=namePrefix+t.n+' Lv.'+(S.realm+1);
   document.getElementById('enemy-hp-fill').style.width='100%';
   ez.classList.add('active');
 }
@@ -904,7 +962,7 @@ function attackEnemy(dmg){
   if(!S.enemy)return;
   // 暴击判定
   let isCrit=Math.random()<getCritChance();
-  if(isCrit)dmg=Math.floor(dmg*2);
+  if(isCrit)dmg=Math.floor(dmg*(2+artifactEffect('critDmg')));
   S.enemy.hp-=dmg;
   let pct=Math.max(0,(S.enemy.hp/S.enemy.maxHp)*100);
   document.getElementById('enemy-hp-fill').style.width=pct+'%';
@@ -924,9 +982,14 @@ function showDmgFloat(x,y,dmg,isCrit){
 }
 function killEnemy(){
   let e=S.enemy;
+  S.ach.totalKills=(S.ach.totalKills||0)+1;
+  if(e.tier==="elite")S.ach.eliteKills=(S.ach.eliteKills||0)+1;
+  if(e.tier==="rare")S.ach.rareKills=(S.ach.rareKills||0)+1;
+  checkAchievements();
   S.qi+=e.qi;
   S.totalQi+=e.qi;
   S.exp+=Math.floor(e.qi*1.2);
+  if(S.skills.includes("c5")){S.qi+=Math.floor(e.qi*0.25);S.totalQi+=Math.floor(e.qi*0.25)}
   spawnQiParticles(15);
   // 掉落判定
   let dropChance=0.25*(1+linggenBonus('drop'));
@@ -943,8 +1006,8 @@ function killEnemy(){
     let isUpgrade=false;
     if(!old)isUpgrade=true;
     else{
-      let oldVal=old.a||old.d||(old.q*100)||0;
-      let newVal=item.a||item.d||(item.q*100)||0;
+      let oldVal=old.a||old.d||(old.e?old.e.v*100:0)||(old.q*100)||0;
+      let newVal=item.a||item.d||(item.e?item.e.v*100:0)||(item.q*100)||0;
       isUpgrade=newVal>oldVal;
     }
     if(isUpgrade){
@@ -1034,7 +1097,7 @@ function triggerBreakthrough(){
     S.qi=Math.max(0,S.qi-cost);
     let oldStage=getRealm().stage;
     if(success){
-      S.realm++;S.exp=0;S.btCount++;S.cultivation=0;S.failStreak=0;
+      S.realm++;S.exp=0;S.btCount++;S.cultivation=0;S.failStreak=0;S.ach.btSuccess=(S.ach.btSuccess||0)+1;checkAchievements();S.playerHp=getMaxHp();S.maxHp=getMaxHp();var unls={10:"✨ 丹药系统即将开启",13:"⚔ 法宝现世！解锁法宝槽",16:"⌂ 洞府开辟！获灵脉被动",19:"☁ 分身术！挂机效率翻倍",22:"◎ 领域展开！压制低阶",26:"☆ 飞升真仙！可转世重修"};if(unls[S.realm]){showMilestone("★ 新系统解锁",unls[S.realm]);}
       let newStage=getRealm().stage;
       S.btHistory.unshift({r:getRealm().n,ok:true,ts:Date.now()});
       document.getElementById('bt-result').innerHTML='<span style="color:#4db88d">✨ 突破成功！</span><br><span style="font-size:0.7em;color:#c9a84c">晋升 '+getRealm().n+'</span>';
@@ -1078,7 +1141,7 @@ function doStageBreakthrough(newStage){
   if(newStage===1&&!S.daoName){
     setTimeout(()=>{
       let nm=prompt('🎉 踏入凡人境！请输入道号：','无名修士');
-      S.daoName=nm||'无名修士';
+      var nm2=nm?nm.trim():'';if(nm2){var derr=validateName(nm2);if(derr){showToast('⚠ 命名不合规：'+derr);S.daoName='无名修士'}else{S.daoName=nm2}}else{S.daoName='无名修士'}
       updateVisuals();
       save();
     },2000);
@@ -1223,6 +1286,7 @@ window.doPrestige=doPrestige;
 let _autoAttackTimer=0;
 let _enemySpawnThreshold=4+Math.random()*4;
 let _cloneTimer=0;
+let _enemyAttackTimer=0;
 let _lastTick=Date.now();
 function tick(){
   // 时间增量 (解决后台节流)
@@ -1242,13 +1306,28 @@ function tick(){
     let aspd=1.5;
     if(S.shentong.includes('st1'))aspd*=0.6;
     if(_autoAttackTimer>=aspd){_autoAttackTimer=0;attackEnemy(Math.floor(getAtk()*0.5))}
-    // 分身攻击
     if(S.shentong.includes('st3')){
       _cloneTimer+=0.1;
       if(_cloneTimer>=aspd*1.5){_cloneTimer=0;attackEnemy(Math.floor(getAtk()*0.3))}
     }
+    _enemyAttackTimer+=0.1;
+    if(_enemyAttackTimer>=1.5){_enemyAttackTimer=0;
+      let reduction=getDefReduction();
+      let diffAtkDmg=[1,2,4][S.difficulty]||1;let rawDmg=S.enemy.atk*diffAtkDmg*(1+Math.random()*0.2);
+      let dmg=Math.max(1,Math.floor(rawDmg*(1-reduction)));
+      S.playerHp-=dmg;
+      showDmgFloat(window.innerWidth/2+randInt(-40,40),window.innerHeight*0.45+randInt(-10,10),dmg,false);
+      if(S.playerHp<=0){
+        document.getElementById('enemy-zone').classList.remove('active');
+        S.enemy=null;S.enemyTimer=0;
+        S.playerHp=Math.floor(getMaxHp()*0.2);
+        showToast('☠ 灵力不支，敌人逃走了...');
+      }
+    }
   }else{
     S.enemyTimer+=0.1;
+    let mhp=getMaxHp();
+    if(S.playerHp<mhp)S.playerHp=Math.min(mhp,S.playerHp+Math.ceil(mhp*0.02*0.1));
     if(S.enemyTimer>_enemySpawnThreshold){S.enemyTimer=0;_enemySpawnThreshold=4+Math.random()*4;spawnEnemy()}
   }
   // 随机事件
@@ -1335,6 +1414,8 @@ function updateUnlockBar(){
 }
 
 // ===== UI渲染 =====
+function setDifficulty(lv){S.difficulty=lv;document.querySelectorAll(".diff-btn").forEach(function(b,i){b.classList.toggle("active",i===lv)});save();showToast(["普通难度","困难难度！3倍奖励","地狱难度！！10倍奖励"][lv])}
+function getGoals(){var r=getRealm(),n=getNext(),st=getStage();var s="",m="",b="";if(!isCultComplete()){s="[参悟] "+getCultName()+" ("+Math.floor(S.cultivation/getCultTarget()*100)+"%)"}else if(n&&canBT()){s="[可突破] 点击突破！"}else if(S.enemy){s="[战斗] 击败 "+S.enemy.n}else{s="[等待] 敌人即将出现..."}var ul={10:"[炼丹] 炼丹系统",13:"[法宝] 法宝系统",16:"[洞府] 洞府系统",19:"[分身] 分身系统",22:"[领域] 领域系统",26:"[飞升] 飞升真仙"};for(var i=S.realm+1;i<=26;i++){if(ul[i]){m="目标: "+REALMS[i].n+" -> "+ul[i];break}}if(!m&&n){m="目标: 突破至 "+n.n}for(var i=S.realm+1;i<=26;i++){var sr=REALMS[i].stage;if(sr>st.id){b="大目标: 晋升 "+STAGES[sr].name;break}}if(!b)b="终极目标: 飞升转世";return{small:s,med:m,big:b}}
 function refreshAll(){refreshHUD();refreshPanel();refreshSkillCD();updateVisuals();updateUnlockBar()}
 function refreshHUD(){
   document.getElementById('stage-badge').textContent=getStage().name;
@@ -1342,6 +1423,10 @@ function refreshHUD(){
   document.getElementById('stage-badge').style.borderColor=getStage().color;
   document.getElementById('realm-badge').textContent=getRealm().n;
   document.getElementById('qi-val').textContent=fmt(S.qi);
+  let mhp=getMaxHp(),hpPct=Math.max(0,Math.floor(S.playerHp/mhp*100));
+  document.getElementById('player-hp-fill').style.width=hpPct+'%';
+  document.getElementById('player-hp-text').textContent='❤ 生命 '+fmt(S.playerHp)+' / '+fmt(mhp)+' ('+hpPct+'%)';
+  var g=getGoals();document.getElementById('goal-tracker').innerHTML='<span class=goal-small>'+g.small+'</span><br><span class=goal-med>'+g.med+'</span><br><span class=goal-big>'+g.big+'</span>';
   let r=getRealm();
   let pct=r.exp===Infinity?100:Math.min(100,Math.floor(S.exp/r.exp*100));
   document.getElementById('exp-bar-fill').style.width=pct+'%';
@@ -1511,6 +1596,9 @@ function showLootToast(item,slot){
   document.body.appendChild(t);
   setTimeout(()=>t.remove(),2200);
 }
+function checkAchievements(){var a=S.ach,rewards=[];if(a.totalKills===1)rewards.push(["初出茅庐","首次击杀敌人",100]);if(a.totalKills===10)rewards.push(["小有成就","累计击杀10只",500]);if(a.totalKills===50)rewards.push(["斩妖除魔","累计击杀50只",2000]);if(a.totalKills===100)rewards.push(["百人斩","累计击杀100只",5000]);if(a.eliteKills===1)rewards.push(["精英猎手","首次击杀精英敌人",800]);if(a.rareKills===1)rewards.push(["天选之人","首次击杀稀有敌人",3000]);if(a.totalFails===5)rewards.push(["百折不挠","突破失败5次",1500]);if(a.btSuccess===10)rewards.push(["修行之路","成功突破10次",3000]);for(var i=0;i<rewards.length;i++){var r=rewards[i];var key="ach_"+r[0];if(!S.ach[key]){S.ach[key]=true;S.qi+=r[2];S.totalQi+=r[2];showToast("☆ "+r[0]+"！"+r[1]+" +"+fmt(r[2])+"灵气")}}}
+function validateName(name){if(!name||name.trim().length<1)return "名字不能为空";name=name.trim();if(name.length>8)return "名字最多4个字";var blocked=["习","毛","邓","江","胡","温","李","周","朱","林","华","赵","共","六四","天安","法轮","达赖","台独","藏独","疆独","东突","恐怖","isis","fuck","shit","ass","bitch","dick","nigger","cunt","whore","slut","bastard","idiot","stupid","moron","retard","sb","cnm","tmd","nmsl"];var lower=name.toLowerCase();for(var i=0;i<blocked.length;i++){if(lower.indexOf(blocked[i].toLowerCase())>=0)return "名字包含敏感词，请重新取名"}if(!/[一-龥a-zA-Z]/.test(name))return "需要包含中文或字母";return null}
+function showMilestone(icon,desc){document.getElementById("ms-icon").textContent=icon;document.getElementById("ms-title").textContent=icon;document.getElementById("ms-desc").textContent=desc;document.getElementById("milestone-overlay").classList.add("active");setTimeout(function(){document.getElementById("milestone-overlay").classList.remove("active")},4000)}
 function showToast(msg){
   let t=document.createElement('div');
   t.style.cssText='position:fixed;top:15%;left:50%;transform:translateX(-50%);padding:10px 24px;background:rgba(20,20,40,0.95);border:1px solid rgba(201,168,76,0.4);border-radius:8px;color:var(--gold-bright);font-family:STKaiti,KaiTi,serif;z-index:200;pointer-events:none;animation:toastAnim 2s ease forwards';
@@ -1588,9 +1676,16 @@ function init(){
     document.body.innerHTML='<div style="color:#c9a84c;text-align:center;padding:40px;font-family:sans-serif"><h2>初始化失败</h2><p>'+e.message+'</p><button onclick="try{localStorage.clear()}catch(e){};location.reload()" style="margin-top:20px;padding:10px 30px">清除所有存档重试</button></div>';
   }
 }
+document.addEventListener("click",function(e){if(!panelsOpen)return;var path=e.composedPath();var inPanel=path.some(function(el){return el.id==="panels"||(el.classList&&el.classList.contains("tab"))});if(!inPanel)closePanel()});
 init();
 </script>
 
 
+<div id="milestone-overlay" onclick="this.classList.remove("active")">
+  <div class="ms-icon" id="ms-icon"></div>
+  <div class="ms-title" id="ms-title"></div>
+  <div class="ms-desc" id="ms-desc"></div>
+  <div class="ms-btn">知道了</div>
+</div>
 </body>
 </html>
